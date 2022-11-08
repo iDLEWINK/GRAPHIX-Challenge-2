@@ -1,5 +1,5 @@
-#pragma once
 #include "MyCamera.h"
+#pragma once
 
 class OrthoCamera : public MyCamera
 {

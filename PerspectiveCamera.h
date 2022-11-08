@@ -1,5 +1,5 @@
-#pragma once
 #include "MyCamera.h"
+#pragma once
 
 class PerspectiveCamera : public MyCamera 
 {
@@ -9,7 +9,7 @@ class PerspectiveCamera : public MyCamera
 
 	public:	
 		PerspectiveCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch, float sensitivity, float screenWidth, float screenHeight)
-		: MyCamera(cameraPos, cameraCenter, WorldUp, yaw, pitch, sensitivity, screenWidth, screenHeight)		
+			: MyCamera(cameraPos, cameraCenter, WorldUp, yaw, pitch, sensitivity, screenWidth, screenHeight)		
 		{
 			aspectRatio = screenWidth / screenHeight;
 			/* Default Settings to initialize the projection matrix */

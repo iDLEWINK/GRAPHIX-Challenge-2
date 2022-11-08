@@ -22,6 +22,10 @@
 #include "PerspectiveCamera.h"
 #include "OrthoCamera.h"
 
+// Light Class
+#include "DirectionalLight.h"
+#include "PointLight.h"
+
 int main(void)
 {
     GLFWwindow* window;
@@ -30,8 +34,8 @@ int main(void)
     if (!glfwInit())
         return -1;
 
-    float screenWidth = 750.f;
-    float screenHeight = 750.f;
+    float screenWidth = 1280.f;
+    float screenHeight = 720.f;
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(screenWidth, screenHeight, "Josh Aaron Khyle S. Uson", NULL, NULL);
@@ -260,7 +264,6 @@ int main(void)
 
 
 
-
     /* VAO1 - UNLIT POINT LIGHT OBJECT */
     /* Load the mesh */
     success = tinyobj::LoadObj(
@@ -326,7 +329,7 @@ int main(void)
 
 
 
-    /* CAMERA */
+    /* PERSPECTIVE CAMERA */
     PerspectiveCamera perspectiveCamera(
         glm::vec3(0.0f, 0.0f, 10.0f),   // Camera Position
         glm::vec3(0.0f, 0.0f, 0.0f),    // Camera Center
@@ -339,24 +342,38 @@ int main(void)
     );
 
     perspectiveCamera.setProjectionMatrix(
-        45.0f,                      // FOV in degrees
-        screenWidth / screenHeight, // Aspect Ratio
+        45.0f,                      // FOV in degrees        
         0.1f,                       // Z Near
-        100.0f                      // Z Far
+        100.0f,                     // Z Far
+        screenWidth / screenHeight  // Aspect Ratio
     );   
 
+
+
+
+
+
+
+
+
+
+
+
+
     /* LIGHTING */
-    // Light
-    glm::vec3 lightPos = glm::vec3(10, 10, 0); // Position of light origin (X, Y, Z)
-    glm::vec3 lightColor = glm::vec3(1, 1, 1); // RGB lighting - LIGHT
-    // Ambient
-    float ambientStr = 0.4f; // Ambient Strength
-    glm::vec3 ambientColor = glm::vec3(1, 1, 1); // RGB lighting - AMBIENT
-    // Specular
-    float specStr = 1.0f; // Specular strength
-    float specPhong = 16.0f; // Specular Phong
 
-
+    PointLight pointLight(
+        glm::vec3(10, 10, 0),   // Light Position - Position of light origin (X, Y, Z)
+        glm::vec3(1, 1, 1),     // Light Color - RGB lighting of light source
+        glm::vec3(1, 1, 1),     // Ambient Color - RGB lighting of reflected or ambient light
+        0.4f,                   // Ambient Strength - Intensity of reflected or ambient light
+        glm::vec3(1, 1, 1),     // Specular Color - RGB lighting of specular light
+        1.0f,                   // Specular Strength - intensity of specular light
+        16.0f,                  // Specular Phong - concentration of specular light
+        1.0f,                   // Constant Value for Attenuation
+        0.0014f,                // Linear Value for Attenuation
+        0.000007f               // Quadratic Value for Attenuation
+        );
 
 
 
@@ -443,23 +460,23 @@ int main(void)
         /* VARIABLES FOR LIGHTING */
         // LIGHT POSITION AND COLOR
         unsigned int lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
-        glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
+        glUniform3fv(lightPosLoc, 1, glm::value_ptr(pointLight.lightPos));
         unsigned int lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
-        glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
+        glUniform3fv(lightColorLoc, 1, glm::value_ptr(pointLight.lightColor));
 
         // AMBIENT STRENGTH AND COLOR
         unsigned int ambientStrLoc = glGetUniformLocation(shaderProgram, "ambientStr");
-        glUniform1f(ambientStrLoc, ambientStr);
+        glUniform1f(ambientStrLoc, pointLight.ambientStr);
         unsigned int ambientColorLoc = glGetUniformLocation(shaderProgram, "ambientColor");
-        glUniform3fv(ambientColorLoc, 1, glm::value_ptr(ambientColor));
+        glUniform3fv(ambientColorLoc, 1, glm::value_ptr(pointLight.ambientColor));
 
         // CAMERA POSITION, SPECULAR STRENGTH, AND SPECULAR PHONG
         unsigned int cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");
         glUniform3fv(cameraPosLoc, 1, glm::value_ptr(perspectiveCamera.getCameraPos()));
         unsigned int specStrLoc = glGetUniformLocation(shaderProgram, "specStr");
-        glUniform1f(specStrLoc, specStr);
+        glUniform1f(specStrLoc, pointLight.specStr);
         unsigned int specPhongLoc = glGetUniformLocation(shaderProgram, "specPhong");
-        glUniform1f(specPhongLoc, specPhong);
+        glUniform1f(specPhongLoc, pointLight.specPhong);
         
 
         /* MODEL OBJECT ITEM - VAO0 and TEXTURE0 */
