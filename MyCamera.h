@@ -10,7 +10,33 @@ class MyCamera
 		float yaw, pitch, sensitivity, lastX, lastY;
 		
 		void updateViewMatrix() {
-			viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraCenter, WorldUp);
+			//viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraCenter, WorldUp);
+			
+			glm::mat4 cameraPosMatrix = glm::translate(glm::mat4(1.0f), cameraPos * -1.0f);
+
+			// Three camera vectors 
+			glm::vec3 F = cameraCenter - cameraPos;
+			F = glm::normalize(F);
+			glm::vec3 R = glm::cross(F, WorldUp); // Normalized already so we don't need to normalize anymore. But we can normalize to it again to make sure.
+			R = glm::normalize(R);
+			glm::vec3 U = glm::cross(R, F);
+			U = glm::normalize(U);
+
+			glm::mat4 cameraOrientationMatrix = glm::mat4(1.0f); // Double-sided array
+
+			cameraOrientationMatrix[0][0] = R.x;
+			cameraOrientationMatrix[1][0] = R.y;
+			cameraOrientationMatrix[2][0] = R.z;
+
+			cameraOrientationMatrix[0][1] = U.x;
+			cameraOrientationMatrix[1][1] = U.y;
+			cameraOrientationMatrix[2][1] = U.z;
+
+			cameraOrientationMatrix[0][2] = -F.x;
+			cameraOrientationMatrix[1][2] = -F.y;
+			cameraOrientationMatrix[2][2] = -F.z;
+
+			viewMatrix = cameraOrientationMatrix * cameraPosMatrix;			
 		}		
 
 	public:
@@ -66,7 +92,12 @@ class MyCamera
 			return lastY;
 		}
 
+		glm::vec3 getCameraPos() {
+			return cameraPos;
+		}
+
 		glm::mat4 getViewMatrix() {
+			updateViewMatrix();
 			return viewMatrix;
 		}
 };

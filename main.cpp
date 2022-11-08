@@ -327,16 +327,6 @@ int main(void)
 
 
     /* CAMERA */
-    /*
-    glm::mat4 projection_matrix = glm::perspective(
-        glm::radians(60.f), // FOV in degrees
-        screenWidth / screenHeight, // Aspect Ratio
-        0.1f, // Z Near
-        100.f // Z Far
-    );
-    */
-
-
     PerspectiveCamera perspectiveCamera(
         glm::vec3(0.0f, 0.0f, 10.0f),   // Camera Position
         glm::vec3(0.0f, 0.0f, 0.0f),    // Camera Center
@@ -348,8 +338,12 @@ int main(void)
         screenHeight                    // Screen Height
     );
 
-
-
+    perspectiveCamera.setProjectionMatrix(
+        45.0f,                      // FOV in degrees
+        screenWidth / screenHeight, // Aspect Ratio
+        0.1f,                       // Z Near
+        100.0f                      // Z Far
+    );   
 
     /* LIGHTING */
     // Light
@@ -378,7 +372,7 @@ int main(void)
 
 
     /* TRANSFORMATION MATRIX */
-    float z = 0.0f;
+    float z = 3.0f;
     /* Create identity matrix */
     glm::mat4 identity_matrix4 = glm::mat4(1.0f);
 
@@ -422,67 +416,22 @@ int main(void)
     light_obj_matrix = glm::rotate(light_obj_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
     
 
+    glm::mat4 projection_matrix, view_matrix;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);              
 
-
-
-
-
-
-
-        /* CAMERA DON'T TOUCH */
-        /* Camera View Matrix */
-        glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
-        glm::mat4 cameraPosMatrix = glm::translate(glm::mat4(1.0f), cameraPos * -1.0f);
-
-        /* Necessary elements for the vectors */
-        glm::vec3 WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-        glm::vec3 cameraCenter = glm::vec3(0, 0, 0);
-
-        /* Three camera vectors */
-        glm::vec3 F = cameraCenter - cameraPos;
-        F = glm::normalize(F);
-        glm::vec3 R = glm::cross(F, WorldUp); // Normalized already so we don't need to normalize anymore. But we can normalize to it again to make sure.
-        R = glm::normalize(R);
-        glm::vec3 U = glm::cross(R, F);
-        U = glm::normalize(U);
-
-        glm::mat4 cameraOrientationMatrix = glm::mat4(1.0f); // Double-sided array
-
-        cameraOrientationMatrix[0][0] = R.x;
-        cameraOrientationMatrix[1][0] = R.y;
-        cameraOrientationMatrix[2][0] = R.z;
-
-        cameraOrientationMatrix[0][1] = U.x;
-        cameraOrientationMatrix[1][1] = U.y;
-        cameraOrientationMatrix[2][1] = U.z;
-
-        cameraOrientationMatrix[0][2] = -F.x;
-        cameraOrientationMatrix[1][2] = -F.y;
-        cameraOrientationMatrix[2][2] = -F.z;
-
-        glm::mat4 viewMatrix = cameraOrientationMatrix * cameraPosMatrix;                        
-        /* CAMERA DON'T TOUCH END */
-
-       
-
-
-
-
-
-
-
-
+        projection_matrix = perspectiveCamera.getProjectionMatrix();
+        view_matrix = perspectiveCamera.getViewMatrix();
 
         /* VARIABLES FOR CAMERA */
         unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
         unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
 
         /* VARIABLES FOR OBJECT POSITION, ROTATION, SCALE - (TO BE USED LATER) */
         unsigned int transformationLoc = glGetUniformLocation(shaderProgram, "transform"); // transform is the variable from sample.vert
@@ -506,7 +455,7 @@ int main(void)
 
         // CAMERA POSITION, SPECULAR STRENGTH, AND SPECULAR PHONG
         unsigned int cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");
-        glUniform3fv(cameraPosLoc, 1, glm::value_ptr(cameraPos));
+        glUniform3fv(cameraPosLoc, 1, glm::value_ptr(perspectiveCamera.getCameraPos()));
         unsigned int specStrLoc = glGetUniformLocation(shaderProgram, "specStr");
         glUniform1f(specStrLoc, specStr);
         unsigned int specPhongLoc = glGetUniformLocation(shaderProgram, "specPhong");
