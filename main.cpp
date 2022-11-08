@@ -328,7 +328,7 @@ int main(void)
 
 
 
-
+    /* CAMERA */
     /* PERSPECTIVE CAMERA */
     PerspectiveCamera perspectiveCamera(
         glm::vec3(0.0f, 0.0f, 10.0f),   // Camera Position
@@ -352,16 +352,8 @@ int main(void)
 
 
 
-
-
-
-
-
-
-
-
     /* LIGHTING */
-
+    /* POINT LIGHT */
     PointLight pointLight(
         glm::vec3(10, 10, 0),   // Light Position - Position of light origin (X, Y, Z)
         glm::vec3(1, 1, 1),     // Light Color - RGB lighting of light source
@@ -373,9 +365,18 @@ int main(void)
         1.0f,                   // Constant Value for Attenuation
         0.0014f,                // Linear Value for Attenuation
         0.000007f               // Quadratic Value for Attenuation
-        );
-
-
+    );
+    
+    /* DIRECTIONAL LIGHT */
+    DirectionalLight directionalLight(
+        glm::vec3(4, 11, -3),   // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
+        glm::vec3(1, 1, 1),     // Light Color - RGB lighting of light source
+        glm::vec3(1, 1, 1),     // Ambient Color - RGB lighting of reflected or ambient light
+        0.4f,                   // Ambient Strength - Intensity of reflected or ambient light
+        glm::vec3(1, 1, 1),     // Specular Color - RGB lighting of specular light
+        1.0f,                   // Specular Strength - intensity of specular light
+        16.0f                   // Specular Phong - concentration of specular light
+    );
 
 
 
