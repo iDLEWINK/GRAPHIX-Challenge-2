@@ -18,6 +18,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+// Camera Class
+#include "PerspectiveCamera.h"
+#include "OrthoCamera.h"
+
 int main(void)
 {
     GLFWwindow* window;
@@ -310,13 +314,7 @@ int main(void)
     // 1 is for the Normals
     // 2 is for the Textures
     glEnableVertexAttribArray(0); // Position
-
-
-
-
-
    
-
     // We're done modifying - bind it to 0
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // We're done modifying - bind it to 0
@@ -329,12 +327,29 @@ int main(void)
 
 
     /* CAMERA */
+    /*
     glm::mat4 projection_matrix = glm::perspective(
         glm::radians(60.f), // FOV in degrees
         screenWidth / screenHeight, // Aspect Ratio
         0.1f, // Z Near
         100.f // Z Far
     );
+    */
+
+
+    PerspectiveCamera perspectiveCamera(
+        glm::vec3(0.0f, 0.0f, 10.0f),   // Camera Position
+        glm::vec3(0.0f, 0.0f, 0.0f),    // Camera Center
+        glm::vec3(0.0f, 1.0f, 0.0f),    // World Up
+        90.0f,                          // Yaw
+        0.0f,                           // Pitch
+        0.1f,                           // Sensitivity
+        screenWidth,                    // Screen Width
+        screenHeight                    // Screen Height
+    );
+
+
+
 
     /* LIGHTING */
     // Light
@@ -413,13 +428,19 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+
+
+
+
+
         /* CAMERA DON'T TOUCH */
         /* Camera View Matrix */
-        glm::vec3 cameraPos = glm::vec3(0, 0, 10.0f);
+        glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
         glm::mat4 cameraPosMatrix = glm::translate(glm::mat4(1.0f), cameraPos * -1.0f);
 
         /* Necessary elements for the vectors */
-        glm::vec3 WorldUp = glm::vec3(0, 1.0f, 0);
+        glm::vec3 WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 cameraCenter = glm::vec3(0, 0, 0);
 
         /* Three camera vectors */
@@ -446,6 +467,16 @@ int main(void)
 
         glm::mat4 viewMatrix = cameraOrientationMatrix * cameraPosMatrix;                        
         /* CAMERA DON'T TOUCH END */
+
+       
+
+
+
+
+
+
+
+
 
         /* VARIABLES FOR CAMERA */
         unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
