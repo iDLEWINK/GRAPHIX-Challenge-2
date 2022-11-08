@@ -163,7 +163,7 @@ int main(void)
 
 
 
-    /* VAO0 - Spoon COMPLETE */
+    /* VAO0 - Mushroom COMPLETE */
     success = tinyobj::LoadObj(
         &attributes,
         &shapes,
@@ -347,54 +347,64 @@ int main(void)
     float specStr = 1.0f; // Specular strength
     float specPhong = 16.0f; // Specular Phong
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /* TRANSFORMATION MATRIX */
     float z = 0.0f;
     /* Create identity matrix */
     glm::mat4 identity_matrix4 = glm::mat4(1.0f);
 
     /* Base transformation matrix */
-    glm::mat4 left_matrix = identity_matrix4;
-    glm::mat4 center_matrix = identity_matrix4;
-    glm::mat4 right_matrix = identity_matrix4;
+    glm::mat4 model_matrix = identity_matrix4;
+    glm::mat4 light_obj_matrix = identity_matrix4;
 
     /* POSITIONS */
-    left_matrix = glm::translate(left_matrix, glm::vec3(-3.0f, 1.0f, z));
-    center_matrix = glm::translate(center_matrix, glm::vec3(0.0f, 0.0f, z));
-
+    model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, z));
+    light_obj_matrix = glm::translate(light_obj_matrix, glm::vec3(3.0f, 2.0f, z));
 
     /* SCALING */
-    // LEFT
+    // MODEL OBJECT
     float l_scale_x, l_scale_y, l_scale_z; 
     l_scale_x = l_scale_y = l_scale_z = 0.005f;
-    left_matrix = glm::scale(left_matrix, glm::vec3(l_scale_x, l_scale_y, l_scale_z));
-    // CENTER
+    model_matrix = glm::scale(model_matrix, glm::vec3(l_scale_x, l_scale_y, l_scale_z));
+    // LIGHT OBJECT
     float c_scale_x, c_scale_y, c_scale_z;
-    c_scale_x = c_scale_y = c_scale_z = 1.0f;
-    center_matrix = glm::scale(center_matrix, glm::vec3(c_scale_x, c_scale_y, c_scale_z));
-
-
+    c_scale_x = c_scale_y = c_scale_z = 0.25f;
+    light_obj_matrix = glm::scale(light_obj_matrix, glm::vec3(c_scale_x, c_scale_y, c_scale_z));
 
     float theta, rot_x, rot_y, rot_z;
     /* ROTATION Y - AXIS */
     rot_x = rot_z = 0.0f;
     rot_y = 1.0f;
-    // LEFT
-    theta = 170.0f;
-    left_matrix = glm::rotate(left_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
-    // CENTER
-    theta = -45.0f;
-    center_matrix = glm::rotate(center_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
-   
+    // MODEL OBJECT
+    theta = 0.0f;
+    model_matrix = glm::rotate(model_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
+    // LIGHT OBJECT
+    theta = 0.0f;
+    light_obj_matrix = glm::rotate(light_obj_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
 
     /* ROTATION X - AXIS */
     rot_y = rot_z = 0.0f;
     rot_x = 1.0f;
-    // LEFT
-    theta = -40.0f;
-    left_matrix = glm::rotate(left_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
-    // CENTER
+    // MODEL OBJECT
     theta = 0.0f;
-    center_matrix = glm::rotate(center_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
+    model_matrix = glm::rotate(model_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
+    // LIGHT OBJECT
+    theta = 0.0f;
+    light_obj_matrix = glm::rotate(light_obj_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
     
 
     /* Loop until the user closes the window */
@@ -472,11 +482,11 @@ int main(void)
         glUniform1f(specPhongLoc, specPhong);
         
 
-        /* LEFT ITEM - VAO0 and TEXTURE0 */
+        /* MODEL OBJECT ITEM - VAO0 and TEXTURE0 */
         // DRAW THE TEXTURE0
         glBindTexture(GL_TEXTURE_2D, texture); // Call OpenGL we're using that texture
-        // LEFT TRANSFORM MATRIX
-        glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(left_matrix));
+        // MODEL OBJECT TRANSFORM MATRIX
+        glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
         // DRAW OBJECT0 
         glBindVertexArray(VAO[0]);
         glDrawArrays(GL_TRIANGLES, 0, fullVertexData.size() / 8); // divided by 8 to get the number of vertices to draw
@@ -484,9 +494,9 @@ int main(void)
 
 
 
-        /* CENTER ITEM - VAO1 */       
-        // CENTER TRANSFORM MATRIX
-        glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(center_matrix));
+        /* LIGHT OBJECT ITEM - VAO1 */       
+        // LIGHT OBJECT TRANSFORM MATRIX
+        glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(light_obj_matrix));
         // DRAW OBJECT1 
         glBindVertexArray(VAO[1]);
         glDrawElements(GL_TRIANGLES,
