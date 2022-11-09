@@ -46,7 +46,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Shaders\sample.frag" />
-    <CopyFileToFolders Include="Shaders\sample.vert" />
+    <CopyFileToFolders Include="Shaders\object.frag" />
+    <CopyFileToFolders Include="Shaders\object.vert" />
+    <CopyFileToFolders Include="Shaders\directionallight.frag" />
+    <CopyFileToFolders Include="Shaders\unlit.frag" />
+    <CopyFileToFolders Include="Shaders\unlit.vert" />
   </ItemGroup>
 </Project>

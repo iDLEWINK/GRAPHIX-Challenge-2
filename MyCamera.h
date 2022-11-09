@@ -7,7 +7,7 @@ class MyCamera
 {	private:
 		glm::vec3 cameraPos, cameraCenter, WorldUp;
 		glm::mat4 viewMatrix;
-		float yaw, pitch, sensitivity, lastX, lastY;
+		float yaw, pitch;
 		
 		void updateViewMatrix() {
 			//viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraCenter, WorldUp);
@@ -40,15 +40,12 @@ class MyCamera
 		}		
 
 	public:
-		MyCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch, float sensitivity, float screenWidth, float screenHeight) {
+		MyCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch) {
 			this->cameraPos = cameraPos;
 			this->cameraCenter = cameraCenter;
 			this->WorldUp = WorldUp;
 			this->yaw = yaw;
-			this->pitch = pitch;
-			this->sensitivity = sensitivity;
-			lastX = screenWidth / 2.0;
-			lastY = screenHeight / 2.0;
+			this->pitch = pitch;						
 
 			updateViewMatrix();
 		}
@@ -74,23 +71,7 @@ class MyCamera
 
 		void setYaw(float yaw) {
 			this->yaw = yaw;
-		}
-
-		void setLastX(float lastX) {
-			this->lastX = lastX;
-		}
-
-		void setLastY(float lastY) {
-			this->lastY = lastY;
-		}
-
-		float getLastX() {
-			return lastX;
-		}
-
-		float getLastY() {
-			return lastY;
-		}
+		}		
 
 		glm::vec3 getCameraPos() {
 			return cameraPos;

@@ -7,8 +7,8 @@ class OrthoCamera : public MyCamera
 		glm::mat4 projection_matrix;
 
 	public:
-		OrthoCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch, float sensitivity, float screenWidth, float screenHeight)
-			: MyCamera(cameraPos, cameraCenter, WorldUp, yaw, pitch, sensitivity, screenWidth, screenHeight)
+		OrthoCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch)
+			: MyCamera(cameraPos, cameraCenter, WorldUp, yaw, pitch)
 		{
 			/* Default Settings to initialize the ortographic projection matrix; CHANGE THIS TO ARGUMENT ACCEPT */
 			projection_matrix = glm::ortho(-1.0f, 1.0f, 

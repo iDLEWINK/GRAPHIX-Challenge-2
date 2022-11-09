@@ -103,39 +103,65 @@ int main(void)
 
 
 
-
-
-
+    /* Main Object + Point & Directional Light */
+    /* Light Object + Unlit */
     /* SHADER PROGRAM CREATION */
-    //All of these are conversions for vert
-    std::fstream vertSrc("Shaders/sample.vert");
-    std::stringstream vertBuff;
-    vertBuff << vertSrc.rdbuf();
-    std::string vertString = vertBuff.str();
-    const char* v = vertString.c_str();
+    GLuint shaderPrograms[2];
+    const char* frag_paths[2] = { "Shaders/object.frag", "Shaders/unlit.frag" };
+    const char* vert_paths[2] = { "Shaders/object.vert", "Shaders/unlit.vert" };
 
-    //All of these are conversions for frag
-    std::fstream fragSrc("Shaders/sample.frag");
-    std::stringstream fragBuff;
-    fragBuff << fragSrc.rdbuf();
-    std::string fragString = fragBuff.str();
-    const char* f = fragString.c_str();
+    for (int i = 0; i < 2; i++) {
+        //All of these are conversions for vert
+        std::fstream vertSrc(vert_paths[i]);
+        std::stringstream vertBuff;
+        vertBuff << vertSrc.rdbuf();
+        std::string vertString = vertBuff.str();
+        const char* v = vertString.c_str();
 
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &v, NULL);
-    glCompileShader(vertexShader);
+        //All of these are conversions for frag
+        std::fstream fragSrc(frag_paths[i]);
+        std::stringstream fragBuff;
+        fragBuff << fragSrc.rdbuf();
+        std::string fragString = fragBuff.str();
+        const char* f = fragString.c_str();
 
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &f, NULL);
-    glCompileShader(fragmentShader);
+        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, 1, &v, NULL);
+        glCompileShader(vertexShader);
 
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
+        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, 1, &f, NULL);
+        glCompileShader(fragmentShader);
 
-    glLinkProgram(shaderProgram);
-    // Use the shaderProgram
-    glUseProgram(shaderProgram);
+        GLuint shaderProgram = glCreateProgram();
+        glAttachShader(shaderProgram, vertexShader);
+        glAttachShader(shaderProgram, fragmentShader);
+
+        shaderPrograms[i] = shaderProgram;
+        glLinkProgram(shaderPrograms[i]);
+    }
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /* OBJECT LOADING + SETUP MESH START */
@@ -145,9 +171,8 @@ int main(void)
     
     // Initialize VAOs, VBOs, and EBO
     /*
-    VAO0 - spoon
-    VAO1 - djSword (NO TEXCOORDS)
-    VAO2 - teacup (NO NORMALS)    
+    VAO0 - Mushroom; Main 3D Model
+    VAO1 - Square; Light Box
     */
 
     GLuint VAO[2], VBO[2], EBO;
@@ -348,6 +373,22 @@ int main(void)
         screenWidth / screenHeight  // Aspect Ratio
     );   
 
+    /* ORTHOGRAPHIC CAMERA */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -356,10 +397,10 @@ int main(void)
     /* POINT LIGHT */
     PointLight pointLight(
         glm::vec3(10, 10, 0),   // Light Position - Position of light origin (X, Y, Z)
-        glm::vec3(1, 1, 1),     // Light Color - RGB lighting of light source
-        glm::vec3(1, 1, 1),     // Ambient Color - RGB lighting of reflected or ambient light
+        glm::vec3(1, 0.5, 0.5),     // Light Color - RGB lighting of light source
+        glm::vec3(1, 0.5, 0.5),     // Ambient Color - RGB lighting of reflected or ambient light
         0.4f,                   // Ambient Strength - Intensity of reflected or ambient light
-        glm::vec3(1, 1, 1),     // Specular Color - RGB lighting of specular light
+        glm::vec3(1, 0.5, 0.5),     // Specular Color - RGB lighting of specular light
         1.0f,                   // Specular Strength - intensity of specular light
         16.0f,                  // Specular Phong - concentration of specular light
         1.0f,                   // Constant Value for Attenuation
@@ -367,15 +408,15 @@ int main(void)
         0.000007f               // Quadratic Value for Attenuation
     );
     
-    /* DIRECTIONAL LIGHT */
+    /* DIRECTIONAL LIGHT (4, 11, -3) */
     DirectionalLight directionalLight(
-        glm::vec3(4, 11, -3),   // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
-        glm::vec3(1, 1, 1),     // Light Color - RGB lighting of light source
-        glm::vec3(1, 1, 1),     // Ambient Color - RGB lighting of reflected or ambient light
-        0.4f,                   // Ambient Strength - Intensity of reflected or ambient light
-        glm::vec3(1, 1, 1),     // Specular Color - RGB lighting of specular light
-        1.0f,                   // Specular Strength - intensity of specular light
-        16.0f                   // Specular Phong - concentration of specular light
+        glm::vec3(2, 2, 3),   // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
+        glm::vec3(0.5, 0.5, 1),     // Light Color - RGB lighting of light source
+        glm::vec3(0.5, 0.5, 1),     // Ambient Color - RGB lighting of reflected or ambient light
+        0.9f,                   // Ambient Strength - Intensity of reflected or ambient light
+        glm::vec3(0.5, 0.5, 1),     // Specular Color - RGB lighting of specular light
+        10.0f,                   // Specular Strength - intensity of specular light
+        160.0f                   // Specular Phong - concentration of specular light
     );
 
 
@@ -405,7 +446,7 @@ int main(void)
     /* SCALING */
     // MODEL OBJECT
     float l_scale_x, l_scale_y, l_scale_z; 
-    l_scale_x = l_scale_y = l_scale_z = 0.005f;
+    l_scale_x = l_scale_y = l_scale_z = 0.003f;
     model_matrix = glm::scale(model_matrix, glm::vec3(l_scale_x, l_scale_y, l_scale_z));
     // LIGHT OBJECT
     float c_scale_x, c_scale_y, c_scale_z;
@@ -434,6 +475,15 @@ int main(void)
     light_obj_matrix = glm::rotate(light_obj_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
     
 
+
+
+
+
+
+
+
+
+
     glm::mat4 projection_matrix, view_matrix;
 
     /* Loop until the user closes the window */
@@ -445,18 +495,24 @@ int main(void)
         projection_matrix = perspectiveCamera.getProjectionMatrix();
         view_matrix = perspectiveCamera.getViewMatrix();
 
+        // REMOVE THIS
+        GLuint shaderProgram;
+        shaderProgram = shaderPrograms[0];
+        glUseProgram(shaderProgram);
+
         /* VARIABLES FOR CAMERA */
         unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
         unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
 
+
         /* VARIABLES FOR OBJECT POSITION, ROTATION, SCALE - (TO BE USED LATER) */
         unsigned int transformationLoc = glGetUniformLocation(shaderProgram, "transform"); // transform is the variable from sample.vert
-
         /* VARIABLES FOR TEXTURE*/
         GLuint tex0Address = glGetUniformLocation(shaderProgram, "tex0"); // Get the address
         glUniform1i(tex0Address, 0); // Comes from GL_TEXTURE 0
+
 
         /* VARIABLES FOR LIGHTING */
         // LIGHT POSITION AND COLOR
@@ -492,9 +548,40 @@ int main(void)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // REMOVE THIS
+        shaderProgram = shaderPrograms[1];
+        glUseProgram(shaderProgram);
+
+        transformationLoc = glGetUniformLocation(shaderProgram, "transform");
+        glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(light_obj_matrix));
+        projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
+        viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
+
         /* LIGHT OBJECT ITEM - VAO1 */       
         // LIGHT OBJECT TRANSFORM MATRIX
-        glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(light_obj_matrix));
+
+        
         // DRAW OBJECT1 
         glBindVertexArray(VAO[1]);
         glDrawElements(GL_TRIANGLES,
@@ -502,7 +589,6 @@ int main(void)
             GL_UNSIGNED_INT,
             0);
 
-     
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
         /* Poll for and process events */
