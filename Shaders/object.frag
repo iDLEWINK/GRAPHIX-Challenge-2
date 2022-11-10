@@ -11,6 +11,7 @@ uniform float ambientStr; // ambient intensity or strength
 uniform vec3 ambientColor; // color of the ambient or reflected light
 
 uniform vec3 cameraPos;
+uniform vec3 specColor; // specular light color
 uniform float specStr; // specular intensity or strength
 uniform float specPhong; // spread or concentration of the specular light
 
@@ -20,7 +21,6 @@ in vec3 normCoord;
 in vec3 fragPos;
 
 out vec4 FragColor;
-
 
 void main(){
     vec3 normal = normalize(normCoord);
@@ -37,7 +37,7 @@ void main(){
     vec3 viewDir = normalize(cameraPos - fragPos);
     vec3 reflectDir = reflect(-lightDir, normal); // Reflection vector    
     float spec = pow(max(dot(reflectDir, viewDir), 0.1f), specPhong); // Specular light
-    vec3 specCol = spec * specStr * lightColor; // Or any in light color; you can choose your own rgb as opposed to lightColor; final specular color
+    vec3 specCol = spec * specStr * specColor; //  Combine spec with intensity and chosen RGB coler
 
     /* POINT */
     /* NOTE: Values are determined from a recommended light combinations table from Ogre3D - www.ogre3d.org/tikiwiki/tiki-index.php?page=-Point+Light+Attenuation */
