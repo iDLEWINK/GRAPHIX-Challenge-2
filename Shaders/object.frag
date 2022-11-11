@@ -42,9 +42,9 @@ void main(){
 
     /* SPECULAR */
     vec3 viewDir = normalize(cameraPos - fragPos);
-    vec3 reflectDir = reflect(-pointLightDir, normal); // Reflection vector    
-    float spec = pow(max(dot(reflectDir, viewDir), 0.1f), pointSpecPhong); // Specular light
-    vec3 specCol = spec * pointSpecStr * pointSpecColor; //  Combine spec with intensity and chosen RGB coler
+    vec3 pointReflectDir = reflect(-pointLightDir, normal); // Reflection vector    
+    float pointSpec = pow(max(dot(pointReflectDir, viewDir), 0.1f), pointSpecPhong); // Specular light
+    vec3 pointSpecCol = pointSpec * pointSpecStr * pointSpecColor; //  Combine spec with intensity and chosen RGB coler
 
     /* POINT */
     /* NOTE: Values are determined from a recommended light combinations table from Ogre3D - www.ogre3d.org/tikiwiki/tiki-index.php?page=-Point+Light+Attenuation */
@@ -58,7 +58,7 @@ void main(){
     /* APPLY POINT LIGHT INTENSITY */
     pointDiffuse = pointDiffuse * attenuation;        // transform the diffuse vector with respect to the attenuation
     pointAmbientCol = pointAmbientCol * attenuation;    // transform the ambient vector with respect to the attenuation
-    specCol = specCol * attenuation;        // transform the specular vector with respect to the attenuation
+    pointSpecCol = pointSpecCol * attenuation;        // transform the specular vector with respect to the attenuation
 
 
 
@@ -69,7 +69,7 @@ void main(){
 
 
     // Fix this later with directional
-    FragColor = vec4(specCol + pointDiffuse + pointAmbientCol, 1.0f) * texture(tex0, texCoord); // Assign the pixels, given our UV, to the model of our object; The wrapping part
+    FragColor = vec4(pointSpecCol + pointDiffuse + pointAmbientCol, 1.0f) * texture(tex0, texCoord); // Assign the pixels, given our UV, to the model of our object; The wrapping part
                                                                 // Apply the diffuse
                                                                 // Apply the ambient
                                                                 // Apply specular    
