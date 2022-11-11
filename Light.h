@@ -7,10 +7,11 @@ class Light
 {
 	public:
 		glm::vec3 lightColor, ambientColor, specColor;
-		float ambientStr, specStr, specPhong;
+		float lightStr, ambientStr, specStr, specPhong;
 
-		Light(glm::vec3 lightColor, glm::vec3 ambientColor, float ambientStr, glm::vec3 specColor, float specStr, float specPhong) {
+		Light(glm::vec3 lightColor, float lightStr, glm::vec3 ambientColor, float ambientStr, glm::vec3 specColor, float specStr, float specPhong) {
 			this->lightColor = lightColor;
+			this->lightStr = lightStr;
 			this->ambientColor = ambientColor;
 			this->ambientStr = ambientStr;
 			this->specColor = specColor;
