@@ -396,27 +396,29 @@ int main(void)
     /* LIGHTING */
     /* POINT LIGHT */
     PointLight pointLight(
-        glm::vec3(10, 10, 0),   // Light Position - Position of light origin (X, Y, Z)
+        glm::vec3(10, 10, 0),       // Light Position - Position of light origin (X, Y, Z)
         glm::vec3(1, 0.5, 0.5),     // Light Color - RGB lighting of light source
+        1.0f,                       // Light Strength - intensity of diffuse light  
         glm::vec3(1, 0.5, 0.5),     // Ambient Color - RGB lighting of reflected or ambient light
-        0.4f,                   // Ambient Strength - Intensity of reflected or ambient light
-        glm::vec3(0.5, 0.7, 0.5),     // Specular Color - RGB lighting of specular light
-        50.0f,                   // Specular Strength - intensity of specular light
-        16.0f,                  // Specular Phong - concentration of specular light
-        1.0f,                   // Constant Value for Attenuation
-        0.0014f,                // Linear Value for Attenuation
-        0.000007f               // Quadratic Value for Attenuation
+        0.4f,                       // Ambient Strength - Intensity of reflected or ambient light
+        glm::vec3(0.5, 0.7, 0.5),   // Specular Color - RGB lighting of specular light
+        1.0f,                       // Specular Strength - intensity of specular light
+        16.0f,                      // Specular Phong - concentration of specular light
+        1.0f,                       // Constant Value for Attenuation
+        0.0014f,                    // Linear Value for Attenuation
+        0.000007f                   // Quadratic Value for Attenuation
     );
     
     /* DIRECTIONAL LIGHT (4, 11, -3) */
     DirectionalLight directionalLight(
-        glm::vec3(2, 2, 3),   // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
-        glm::vec3(0.5, 0.5, 1),     // Light Color - RGB lighting of light source
-        glm::vec3(0.5, 0.5, 1),     // Ambient Color - RGB lighting of reflected or ambient light
+        glm::vec3(2, 2, 3),     // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
+        glm::vec3(0.5, 0.5, 1), // Light Color - RGB lighting of light source
+        1.0f,                   // Light Strength - intensity of diffuse light    
+        glm::vec3(0.5, 0.5, 1), // Ambient Color - RGB lighting of reflected or ambient light
         0.9f,                   // Ambient Strength - Intensity of reflected or ambient light
-        glm::vec3(0.5, 0.5, 1),     // Specular Color - RGB lighting of specular light
-        10.0f,                   // Specular Strength - intensity of specular light
-        160.0f                   // Specular Phong - concentration of specular light
+        glm::vec3(0.5, 0.5, 1), // Specular Color - RGB lighting of specular light
+        10.0f,                  // Specular Strength - intensity of specular light
+        160.0f                  // Specular Phong - concentration of specular light
     );
 
 
@@ -516,28 +518,29 @@ int main(void)
 
         /* VARIABLES FOR LIGHTING */
         // LIGHT POSITION AND COLOR
-        unsigned int lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");     // Light Pos
+        unsigned int lightPosLoc = glGetUniformLocation(shaderProgram, "pointLightPos");     // Light Pos
         glUniform3fv(lightPosLoc, 1, glm::value_ptr(pointLight.lightPos));
-        unsigned int lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor"); // Light Color
+        unsigned int lightColorLoc = glGetUniformLocation(shaderProgram, "pointLightColor"); // Light Color
         glUniform3fv(lightColorLoc, 1, glm::value_ptr(pointLight.lightColor));
+        unsigned int lightStrLoc = glGetUniformLocation(shaderProgram, "pointLightStr"); // Light Color
+        glUniform1f(lightStrLoc, pointLight.lightStr);
 
         // AMBIENT STRENGTH AND COLOR
-        unsigned int ambientStrLoc = glGetUniformLocation(shaderProgram, "ambientStr");     // Ambient Intensity
+        unsigned int ambientStrLoc = glGetUniformLocation(shaderProgram, "pointAmbientStr");     // Ambient Intensity
         glUniform1f(ambientStrLoc, pointLight.ambientStr);
-        unsigned int ambientColorLoc = glGetUniformLocation(shaderProgram, "ambientColor"); // Ambient Color
+        unsigned int ambientColorLoc = glGetUniformLocation(shaderProgram, "pointAmbientColor"); // Ambient Color
         glUniform3fv(ambientColorLoc, 1, glm::value_ptr(pointLight.ambientColor));
 
         // CAMERA POSITION, SPECULAR STRENGTH, AND SPECULAR PHONG
         unsigned int cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");       // Camera Position
         glUniform3fv(cameraPosLoc, 1, glm::value_ptr(perspectiveCamera.getCameraPos()));
-        unsigned int specStrLoc = glGetUniformLocation(shaderProgram, "specStr");           // Specular Intensity
+        unsigned int specStrLoc = glGetUniformLocation(shaderProgram, "pointSpecStr");           // Specular Intensity
         glUniform1f(specStrLoc, pointLight.specStr);
-        unsigned int specColorLoc = glGetUniformLocation(shaderProgram, "specColor");       // Specular Color
+        unsigned int specColorLoc = glGetUniformLocation(shaderProgram, "pointSpecColor");       // Specular Color
         glUniform3fv(specColorLoc, 1, glm::value_ptr(pointLight.specColor));
-        unsigned int specPhongLoc = glGetUniformLocation(shaderProgram, "specPhong");       // Specular Phong
+        unsigned int specPhongLoc = glGetUniformLocation(shaderProgram, "pointSpecPhong");       // Specular Phong
         glUniform1f(specPhongLoc, pointLight.specPhong);
         
-
         /* MODEL OBJECT ITEM - VAO0 and TEXTURE0 */
         // DRAW THE TEXTURE0
         glBindTexture(GL_TEXTURE_2D, texture); // Call OpenGL we're using that texture
