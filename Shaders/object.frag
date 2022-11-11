@@ -4,6 +4,7 @@
 
 uniform sampler2D tex0;
 
+/* POINT LIGHT */
 uniform vec3 pointLightPos; // light source
 uniform vec3 pointLightColor; // color of the light source
 uniform float pointLightStr; // intensity of light source
@@ -16,21 +17,70 @@ uniform vec3 pointSpecColor; // specular light color
 uniform float pointSpecStr; // specular intensity or strength
 uniform float pointSpecPhong; // spread or concentration of the specular light
 
-// Receive the output values from vertex shader
+
+
+/* DIRECTIONAL LIGHT */
+uniform vec3 directionalLightPos; // light source
+uniform vec3 directionalLightColor;
+uniform float directionLightStr;
+
+uniform float directionalAmbientStr; // ambient intensity or strength
+uniform vec3 directionalAmbientColor;
+
+uniform vec3 directionalSpecColor; // specular light color
+uniform float directionalSpecStr;
+uniform float directionalSpecPhong;
+
+
+
+/* VERTEX SHADER OUTPUT VARIABLES */
 in vec2 texCoord; 
 in vec3 normCoord;
 in vec3 fragPos;
 
+/* FINAL FRAG COLOR */
 out vec4 FragColor;
 
 void main(){
 
+    FragColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+    /* THE SAME FOR SPECULAR COMPUTATION OF BOTH POINT AND DIRECTIONAL */
     vec3 normal = normalize(normCoord);
+    vec3 viewDir = normalize(cameraPos - fragPos);
+
+    
 
 
 
 
-    /* POINT LIGHT CALCULATION */   
+
+
+
+    /********* DIRECTIONAL LIGHT CALCULATION *********/   
+	vec3 directionalLightDir = normalize(directionalLightPos - fragPos); // Direction from the light source to your fragment source
+
+	/* DIFFUSE */
+	float directionalDiff = max(dot(normal, directionalLightDir), 0.0f); // Max so we do not have any negative lights	
+	vec3 directionalDiffuse = directionalDiff * directionLightStr * directionalLightColor; // Multiply diffuse light to light color (and even intensity)
+
+	/* AMBIENT */
+	vec3 directionalAmbientCol = directionalAmbientStr * directionalAmbientColor; // NOTE: ambientCol != ambientColor; directionalAmbientCol is the final ambient
+
+	/* SPECULAR */
+	vec3 directionalReflectDir = reflect(-directionalLightDir, normal); // Reflection vector	
+	float directionalSpec = pow(max(dot(directionalReflectDir, viewDir), 0.1f), directionalSpecPhong); // Specular light
+	vec3 directionalSpecCol = directionalSpec * directionalSpecStr * directionalSpecColor; // Or any in light color; you can choose your own rgb as opposed to lightColor; final specular color
+
+    /* ADDING DIRECTIONAL TO FRAG COLOR */
+	FragColor += vec4(directionalSpecCol + directionalDiffuse + directionalAmbientCol, 1.0f) * texture(tex0, texCoord); // Assign the pixels, given our UV, to the model of our object; The wrapping part
+																// Apply the diffuse
+																// Apply specular
+
+
+
+
+    /********* POINT LIGHT CALCULATION *********/   
     vec3 pointLightDir = normalize(pointLightPos - fragPos); // Direction from the light source to your fragment source
 
     /* DIFFUSE */
@@ -41,7 +91,6 @@ void main(){
     vec3 pointAmbientCol = pointAmbientStr * pointAmbientColor; // NOTE: pointAmbientCol != pointAmbientColor; pointAmbientCol is the final ambient
 
     /* SPECULAR */
-    vec3 viewDir = normalize(cameraPos - fragPos);
     vec3 pointReflectDir = reflect(-pointLightDir, normal); // Reflection vector    
     float pointSpec = pow(max(dot(pointReflectDir, viewDir), 0.1f), pointSpecPhong); // Specular light
     vec3 pointSpecCol = pointSpec * pointSpecStr * pointSpecColor; //  Combine spec with intensity and chosen RGB coler
@@ -60,17 +109,12 @@ void main(){
     pointAmbientCol = pointAmbientCol * attenuation;    // transform the ambient vector with respect to the attenuation
     pointSpecCol = pointSpecCol * attenuation;        // transform the specular vector with respect to the attenuation
 
-
-
-
-
-
-
-
-
-    // Fix this later with directional
-    FragColor = vec4(pointSpecCol + pointDiffuse + pointAmbientCol, 1.0f) * texture(tex0, texCoord); // Assign the pixels, given our UV, to the model of our object; The wrapping part
+    /* ADDING POINT TO FRAG COLOR */
+    FragColor += vec4(pointSpecCol + pointDiffuse + pointAmbientCol, 1.0f) * texture(tex0, texCoord); // Assign the pixels, given our UV, to the model of our object; The wrapping part
                                                                 // Apply the diffuse
                                                                 // Apply the ambient
-                                                                // Apply specular    
+                                                                // Apply specular   
+                                                                
+    
+
 }

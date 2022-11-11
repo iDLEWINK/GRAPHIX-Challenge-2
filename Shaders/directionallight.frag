@@ -2,6 +2,7 @@
 
 uniform sampler2D tex0;
 
+/* DIRECTIONAL LIGHT */
 uniform vec3 directionalLightPos; // light source
 uniform vec3 directionalLightColor;
 uniform float directionLightStr;
@@ -22,6 +23,8 @@ out vec4 FragColor;
 
 void main(){
 	vec3 normal = normalize(normCoord);
+
+	/********* DIRECTIONAL LIGHT CALCULATION *********/   
 	vec3 directionalLightDir = normalize(directionalLightPos - fragPos); // Direction from the light source to your fragment source
 
 	/* DIFFUSE */

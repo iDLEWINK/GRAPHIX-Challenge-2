@@ -396,8 +396,8 @@ int main(void)
     /* LIGHTING */
     /* POINT LIGHT */
     PointLight pointLight(
-        glm::vec3(10, 10, 0),       // Light Position - Position of light origin (X, Y, Z)
-        glm::vec3(1, 0.5, 0.5),     // Light Color - RGB lighting of light source
+        glm::vec3(3.0, 2.0, 0.0),       // Light Position - Position of light origin (X, Y, Z)
+        glm::vec3(1, 0.2, 0.2),     // Light Color - RGB lighting of light source
         1.0f,                       // Light Strength - intensity of diffuse light  
         glm::vec3(1, 0.5, 0.5),     // Ambient Color - RGB lighting of reflected or ambient light
         0.4f,                       // Ambient Strength - Intensity of reflected or ambient light
@@ -411,7 +411,7 @@ int main(void)
     
     /* DIRECTIONAL LIGHT (4, 11, -3) */
     DirectionalLight directionalLight(
-        glm::vec3(2, 2, 3),     // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
+        glm::vec3(4, 11, -3),     // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
         glm::vec3(0.5, 0.5, 1), // Light Color - RGB lighting of light source
         1.0f,                   // Light Strength - intensity of diffuse light    
         glm::vec3(0.5, 0.5, 1), // Ambient Color - RGB lighting of reflected or ambient light
@@ -433,7 +433,7 @@ int main(void)
 
 
     /* TRANSFORMATION MATRIX */
-    float z = 3.0f;
+    float z = 0.0f;
     /* Create identity matrix */
     glm::mat4 identity_matrix4 = glm::mat4(1.0f);
 
@@ -517,29 +517,71 @@ int main(void)
 
 
         /* VARIABLES FOR LIGHTING */
+
+
+
+        /************ DIRECTIONAL LIGHT ************/
         // LIGHT POSITION AND COLOR
-        unsigned int lightPosLoc = glGetUniformLocation(shaderProgram, "pointLightPos");     // Light Pos
-        glUniform3fv(lightPosLoc, 1, glm::value_ptr(pointLight.lightPos));
-        unsigned int lightColorLoc = glGetUniformLocation(shaderProgram, "pointLightColor"); // Light Color
-        glUniform3fv(lightColorLoc, 1, glm::value_ptr(pointLight.lightColor));
-        unsigned int lightStrLoc = glGetUniformLocation(shaderProgram, "pointLightStr"); // Light Color
-        glUniform1f(lightStrLoc, pointLight.lightStr);
+        unsigned int directionalLightPosLoc = glGetUniformLocation(shaderProgram, "directionalLightPos");     // Light Pos
+        glUniform3fv(directionalLightPosLoc, 1, glm::value_ptr(directionalLight.direction));
+        unsigned int directionalLightColorLoc = glGetUniformLocation(shaderProgram, "directionalLightColor"); // Light Color
+        glUniform3fv(directionalLightColorLoc, 1, glm::value_ptr(directionalLight.lightColor));
+        unsigned int directionalLightStrLoc = glGetUniformLocation(shaderProgram, "directionalLightStr"); // Light Color
+        glUniform1f(directionalLightStrLoc, directionalLight.lightStr);
 
         // AMBIENT STRENGTH AND COLOR
-        unsigned int ambientStrLoc = glGetUniformLocation(shaderProgram, "pointAmbientStr");     // Ambient Intensity
-        glUniform1f(ambientStrLoc, pointLight.ambientStr);
-        unsigned int ambientColorLoc = glGetUniformLocation(shaderProgram, "pointAmbientColor"); // Ambient Color
-        glUniform3fv(ambientColorLoc, 1, glm::value_ptr(pointLight.ambientColor));
+        unsigned int directionalAmbientStrLoc = glGetUniformLocation(shaderProgram, "directionalAmbientStr");     // Ambient Intensity
+        glUniform1f(directionalAmbientStrLoc, directionalLight.ambientStr);
+        unsigned int directionalAmbientColorLoc = glGetUniformLocation(shaderProgram, "directionalAmbientColor"); // Ambient Color
+        glUniform3fv(directionalAmbientColorLoc, 1, glm::value_ptr(directionalLight.ambientColor));
+
+        // CAMERA POSITION, SPECULAR STRENGTH, AND SPECULAR PHONG
+        unsigned int directionalSpecStrLoc = glGetUniformLocation(shaderProgram, "directionalSpecStr");           // Specular Intensity
+        glUniform1f(directionalSpecStrLoc, directionalLight.specStr);
+        unsigned int directionalSpecColorLoc = glGetUniformLocation(shaderProgram, "directionalSpecColor");       // Specular Color
+        glUniform3fv(directionalSpecColorLoc, 1, glm::value_ptr(directionalLight.specColor));
+        unsigned int directionalSpecPhongLoc = glGetUniformLocation(shaderProgram, "directionalSpecPhong");       // Specular Phong
+        glUniform1f(directionalSpecPhongLoc, directionalLight.specPhong);
+
+
+
+
+
+
+
+
+        /************ POINT LIGHT ************/
+        // LIGHT POSITION AND COLOR
+        unsigned int pointLightPosLoc = glGetUniformLocation(shaderProgram, "pointLightPos");     // Light Pos
+        glUniform3fv(pointLightPosLoc, 1, glm::value_ptr(pointLight.lightPos));
+        unsigned int pointLightColorLoc = glGetUniformLocation(shaderProgram, "pointLightColor"); // Light Color
+        glUniform3fv(pointLightColorLoc, 1, glm::value_ptr(pointLight.lightColor));
+        unsigned int pointLightStrLoc = glGetUniformLocation(shaderProgram, "pointLightStr"); // Light Color
+        glUniform1f(pointLightStrLoc, pointLight.lightStr);
+
+        // AMBIENT STRENGTH AND COLOR
+        unsigned int pointAmbientStrLoc = glGetUniformLocation(shaderProgram, "pointAmbientStr");     // Ambient Intensity
+        glUniform1f(pointAmbientStrLoc, pointLight.ambientStr);
+        unsigned int pointAmbientColorLoc = glGetUniformLocation(shaderProgram, "pointAmbientColor"); // Ambient Color
+        glUniform3fv(pointAmbientColorLoc, 1, glm::value_ptr(pointLight.ambientColor));
 
         // CAMERA POSITION, SPECULAR STRENGTH, AND SPECULAR PHONG
         unsigned int cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");       // Camera Position
         glUniform3fv(cameraPosLoc, 1, glm::value_ptr(perspectiveCamera.getCameraPos()));
-        unsigned int specStrLoc = glGetUniformLocation(shaderProgram, "pointSpecStr");           // Specular Intensity
-        glUniform1f(specStrLoc, pointLight.specStr);
-        unsigned int specColorLoc = glGetUniformLocation(shaderProgram, "pointSpecColor");       // Specular Color
-        glUniform3fv(specColorLoc, 1, glm::value_ptr(pointLight.specColor));
-        unsigned int specPhongLoc = glGetUniformLocation(shaderProgram, "pointSpecPhong");       // Specular Phong
-        glUniform1f(specPhongLoc, pointLight.specPhong);
+        unsigned int pointSpecStrLoc = glGetUniformLocation(shaderProgram, "pointSpecStr");           // Specular Intensity
+        glUniform1f(pointSpecStrLoc, pointLight.specStr);
+        unsigned int pointSpecColorLoc = glGetUniformLocation(shaderProgram, "pointSpecColor");       // Specular Color
+        glUniform3fv(pointSpecColorLoc, 1, glm::value_ptr(pointLight.specColor));
+        unsigned int pointSpecPhongLoc = glGetUniformLocation(shaderProgram, "pointSpecPhong");       // Specular Phong
+        glUniform1f(pointSpecPhongLoc, pointLight.specPhong);
+
+
+
+
+
+
+
+
         
         /* MODEL OBJECT ITEM - VAO0 and TEXTURE0 */
         // DRAW THE TEXTURE0
