@@ -27,8 +27,14 @@
 #include "PointLight.h"
 
 /* SCREEN SIZE */
-float screenWidth = 720.f;
-float screenHeight = 720.f;
+float screenWidth = 750.f;
+float screenHeight = 750.f;
+
+/* LIGHT INTENSITY CONTROL */
+float p_light_sens = 1.0f;
+float d_light_sens = 0.1f;
+float d_light_intensity = 1.0f;
+float p_light_intensity = 1.0f;
 
 /* LIGHT OBJECT ROTATION */
 float light_rot_x = 0;
@@ -47,14 +53,12 @@ glm::vec3 control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
 
 /* CAMERA MOVEMENT */
 int cameraType = 1;
-
 /* Set mouse to center */
 bool firstMouse = true;
 /* Controls intensity */
 float cam_sens = 0.8f;
 float lastX = screenWidth / 2.0;
 float lastY = screenHeight / 2.0;
-
 /* DEFAULT SET TO 0 - CENTER */
 float xoffset = 0;
 float yoffset = 0;
@@ -84,6 +88,22 @@ void Key_Callback(GLFWwindow* window,
     int action,
     int mods)
 {
+    /* LIGHT INTENSITY CONTROL */
+    /* DIRECTIONAL LIGHT */
+    if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        d_light_intensity -= d_light_sens;
+    }
+    if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        d_light_intensity += d_light_sens;
+    }
+    /* POINT LIGHT */
+    if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        p_light_intensity += (-p_light_sens); // Quadratic and Linear are in the denominator => Lower value = Stronger
+    }
+    if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        p_light_intensity -= (-p_light_sens); // Quadratic and Linear are in the denominator => Higher value = Weaker
+    }
+
     /* MODEL MOVEMENT KEYS */
     /* Y - AXIS ROTATION */
     if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
@@ -183,7 +203,7 @@ void Key_Callback(GLFWwindow* window,
     if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
         cameraType = 2;
     }
-
+    
     //std::cout << "x: " << light_rot_x << " y: " << light_rot_y << " z: " << light_rot_z << "\n";
     
     /* EXIT APPLICATION */
@@ -529,15 +549,15 @@ int main(void)
     PointLight pointLight(
         glm::vec3(3.0f, 2.0f, 0.0f),       // Light Position - Position of light origin (X, Y, Z)
         glm::vec3(1.0f, 1.0f, 1.0f),     // Light Color - RGB lighting of light source
-        0.0f,                       // Light Strength - intensity of diffuse light  
+        1.0f,                       // Light Strength - intensity of diffuse light  
         glm::vec3(1.0f, 1.0f, 1.0f),     // Ambient Color - RGB lighting of reflected or ambient light
         0.4f,                       // Ambient Strength - Intensity of reflected or ambient light
         glm::vec3(1.0f, 1.0f, 1.0f),   // Specular Color - RGB lighting of specular light
         1.0f,                       // Specular Strength - intensity of specular light
         16.0f,                      // Specular Phong - concentration of specular light
-        1.0f,                       // Constant Value for Attenuation
-        0.35f,                    // Linear Value for Attenuation
-        0.44f                   // Quadratic Value for Attenuation
+        1.0f,                       // DEFAULT: Constant Value for Attenuation
+        0.35f,                      // DEFAULT: Linear Value for Attenuation
+        0.44f                       // DEFAULT: Quadratic Value for Attenuation
     );
     
     /* DIRECTIONAL LIGHT (4, 11, -3) */
@@ -675,6 +695,9 @@ int main(void)
             - NO NEED TO TURN VARIABLES TO PRIVATE YET; WE CAN DO THAT LATER
         */
 
+        /* SET CONTROL OVER DIRECTIONAL LIGHT STRENGTH */
+        directionalLight.lightStr = d_light_intensity;
+
         // LIGHT POSITION AND COLOR
         unsigned int directionalLightPosLoc = glGetUniformLocation(shaderProgram, "directionalLightPos");     // Light Pos
         glUniform3fv(directionalLightPosLoc, 1, glm::value_ptr(directionalLight.direction));
@@ -712,6 +735,11 @@ int main(void)
 
 
         /************ POINT LIGHT ************/
+
+        /* SET CONTROL OVER DIRECTIONAL LIGHT STRENGTH */
+        pointLight.linear = (p_light_intensity * 0.01f);
+        pointLight.quadratic = (p_light_intensity * 0.001f);
+        /* SET CONTROL OVER POINT LIGHT RGB */
         pointLight.lightColor = control_rgb;
         pointLight.ambientColor = control_rgb;
         pointLight.specColor = control_rgb;

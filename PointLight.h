@@ -18,5 +18,11 @@ class PointLight : public Light
 			this->linear = linear;
 			this->quadratic = quadratic;
 		}
+
+		void updateIntensity(float lightStr) {
+			this->lightStr = lightStr;
+			this->linear += 0.01 * lightStr;
+			this->quadratic += 0.001 * lightStr;
+		}
 };
 

@@ -25,7 +25,7 @@ uniform float quadratic;
 /* DIRECTIONAL LIGHT */
 uniform vec3 directionalLightPos; // light source
 uniform vec3 directionalLightColor;
-uniform float directionLightStr;
+uniform float directionalLightStr;
 
 uniform float directionalAmbientStr; // ambient intensity or strength
 uniform vec3 directionalAmbientColor;
@@ -65,7 +65,7 @@ void main(){
 
 	/* DIFFUSE */
 	float directionalDiff = max(dot(normal, directionalLightDir), 0.0f); // Max so we do not have any negative lights	
-	vec3 directionalDiffuse = directionalDiff * directionLightStr * directionalLightColor; // Multiply diffuse light to light color (and even intensity)
+	vec3 directionalDiffuse = directionalDiff * directionalLightStr * directionalLightColor; // Multiply diffuse light to light color (and even intensity)
 
 	/* AMBIENT */
 	vec3 directionalAmbientCol = directionalAmbientStr * directionalAmbientColor; // NOTE: ambientCol != ambientColor; directionalAmbientCol is the final ambient

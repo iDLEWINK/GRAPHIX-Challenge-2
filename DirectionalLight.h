@@ -11,5 +11,9 @@ class DirectionalLight : public Light
 		{
 			this->direction = direction;
 		}
+
+		void updateIntensity(float lightStr) {
+			this->lightStr = lightStr;
+		}
 };
 
