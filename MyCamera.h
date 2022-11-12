@@ -50,28 +50,39 @@ class MyCamera
 			updateViewMatrix();
 		}
 
-		void updateCameraDirection() {
+		void updateCameraPos(float multiplier) {
 			/*
 				Set the updated direction values (Pythagorean Theorem)
 				yaw - x-axis (cos) and z-axis (sin)
 				pitch - x-axis (cos), z-axis (cos), y-axis(sin)
 			*/
-			glm::vec3 direction;
-			direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-			direction.y = sin(glm::radians(pitch));
-			direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+			cameraPos.x = multiplier * cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+			cameraPos.y = multiplier * sin(glm::radians(pitch));
+			cameraPos.z = multiplier * sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		}
 
-			/* Assign the new "front" or center for the camera; Normalize cause the direction is supposed to be a unit vector (len = 1) */
-			cameraCenter = glm::normalize(direction);
+		/* PITCH */
+		float getPitch() {
+			return pitch;
 		}
 
 		void setPitch(float pitch) {
 			this->pitch = pitch;
 		}
 
+		/* YAW */
+		float getYaw() {
+			return yaw;
+		}
+
 		void setYaw(float yaw) {
 			this->yaw = yaw;
 		}		
+
+		/* CAMERA POS */
+		void setCameraPos(glm::vec3 cameraPos) {
+			this->cameraPos = cameraPos;
+		}
 
 		glm::vec3 getCameraPos() {
 			return cameraPos;

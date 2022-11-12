@@ -4,23 +4,50 @@
 class PerspectiveCamera : public MyCamera 
 {
 	private:
-		float aspectRatio, lastX, lastY, sensitivity;
-
+		float aspectRatio, distance;
 	public:	
-		PerspectiveCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch, float sensitivity, float screenWidth, float screenHeight)
+		PerspectiveCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch, float screenWidth, float screenHeight)
 			: MyCamera(cameraPos, cameraCenter, WorldUp, yaw, pitch)		
 		{
 			aspectRatio = screenWidth / screenHeight;
-			lastX = screenWidth / 2.0;
-			lastY = screenHeight / 2.0;
-			this->sensitivity = sensitivity;
 
+			/* Initialize Camera Movement Variable */						
+			distance = cameraPos.z; // Z is the original distance position of the camera from the center
 			
 			/* Default Settings to initialize the projection matrix */
 			glm::mat4 projection_matrix = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
 			/* Set projection_matrix of parent */
 			MyCamera::setProjectionMatrix(projection_matrix);
 		}
+		
+		void updateMouse(float xoffset, float yoffset) {
+			float yaw = MyCamera::getYaw();
+			float pitch = MyCamera::getPitch();
+
+			/* Update the angles through adding of offsets */
+			yaw = glm::mod(yaw + xoffset, 360.0f); // Mod for safety so that yaw's value do not overflow
+			pitch += yoffset;
+
+			/* Sets the constraints for vertical look movement (MAX ANGLE: straight up and straight down ) */
+			if (pitch > 89.0f) {
+				pitch = 89.0f;
+			}
+			if (pitch < -89.0f) {
+				pitch = -89.0f;
+			}
+
+			/*
+				Set the updated position values (Pythagorean Theorem)
+				yaw - x-axis (cos) and z-axis (sin)
+				pitch - x-axis (cos), z-axis (cos), y-axis(sin)
+			*/
+			MyCamera::setYaw(yaw);
+			MyCamera::setPitch(pitch);
+
+			MyCamera::updateCameraPos(distance);
+		}
+
+
 
 		/* OVERLOAD (Default aspect ratio as per the values passed in the constructor)
 			fov - FOV in 
@@ -45,22 +72,6 @@ class PerspectiveCamera : public MyCamera
 
 		glm::mat4 getProjectionMatrix() {
 			return MyCamera::getProjectionMatrix();
-		}
-
-		void setLastX(float lastX) {
-			this->lastX = lastX;
-		}
-
-		void setLastY(float lastY) {
-			this->lastY = lastY;
-		}
-
-		float getLastX() {
-			return lastX;
-		}
-
-		float getLastY() {
-			return lastY;
 		}
 };
 

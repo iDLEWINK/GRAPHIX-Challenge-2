@@ -26,6 +26,10 @@
 #include "DirectionalLight.h"
 #include "PointLight.h"
 
+/* SCREEN SIZE */
+float screenWidth = 720.f;
+float screenHeight = 720.f;
+
 /* LIGHT OBJECT ROTATION */
 float light_rot_x = 0;
 float light_rot_y = 0;
@@ -36,13 +40,42 @@ float model_rot_x = 0;
 float model_rot_y = 0;
 float model_rot_z = 0;
 
-float sensitivity = 2.0f;
+float obj_sens = 2.0f;
 
 bool isLight = false;
 glm::vec3 control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
 
+/* CAMERA MOVEMENT */
 int cameraType = 1;
 
+/* Set mouse to center */
+bool firstMouse = true;
+/* Controls intensity */
+float cam_sens = 0.8f;
+float lastX = screenWidth / 2.0;
+float lastY = screenHeight / 2.0;
+
+/* DEFAULT SET TO 0 - CENTER */
+float xoffset = 0;
+float yoffset = 0;
+
+/* MOUSE FEEDBACK */
+void Mouse_Callback(GLFWwindow* window, double xpos, double ypos) {
+    /* Circumvent the abrupt initial jump by using a sentinel value in recording first input as last */
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    /* Offset from previous frame to new loaded frame */
+    xoffset = (xpos - lastX) * cam_sens;
+    yoffset = (lastY - ypos) * cam_sens;
+
+    /* Store the last x,y mouse position */
+    lastX = xpos;
+    lastY = ypos;
+}
 
 /* KEYS FEEDBACK */
 void Key_Callback(GLFWwindow* window,
@@ -55,24 +88,24 @@ void Key_Callback(GLFWwindow* window,
     /* Y - AXIS ROTATION */
     if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
         if(isLight) {
-            light_rot_y -= sensitivity; // Rotate light object position to the (negative) direction
+            light_rot_y -= obj_sens; // Rotate light object position to the (negative) direction
             if (light_rot_y == -360.0f)
                 light_rot_y = 0;
         }
         else {
-            model_rot_y -= sensitivity; // Rotate model object position to the (negative) direction
+            model_rot_y -= obj_sens; // Rotate model object position to the (negative) direction
             if (model_rot_y == -360.0f)
                 model_rot_y = 0;
         }
     }
     if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
         if(isLight) {
-            light_rot_y += sensitivity; // Rotate light object position to the (positive) direction
+            light_rot_y += obj_sens; // Rotate light object position to the (positive) direction
             if (light_rot_y == 360.0f)
                 light_rot_y = 0;
         }
         else {
-            model_rot_y += sensitivity; // Rotate model object position to the (positive) direction
+            model_rot_y += obj_sens; // Rotate model object position to the (positive) direction
             if (model_rot_y == 360.0f)
                 model_rot_y = 0;
         }
@@ -81,24 +114,24 @@ void Key_Callback(GLFWwindow* window,
     /* X - AXIS ROTATION */
     if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
         if(isLight) {
-            light_rot_x -= sensitivity; // Rotate light object position to the (negative) direction
+            light_rot_x -= obj_sens; // Rotate light object position to the (negative) direction
             if (light_rot_x == -360.0f)
                 light_rot_x = 0;
         }
         else {
-            model_rot_x -= sensitivity; // Rotate model object position to the (negative) direction
+            model_rot_x -= obj_sens; // Rotate model object position to the (negative) direction
             if (model_rot_x == -360.0f)
                 model_rot_x = 0;
         }
     }
     if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
         if(isLight) {
-            light_rot_x += sensitivity; // Rotate light object position to the (positive) direction
+            light_rot_x += obj_sens; // Rotate light object position to the (positive) direction
             if (light_rot_x == 360.0f)
                 light_rot_x = 0;
         }
         else {
-            model_rot_x += sensitivity; // Rotate model object position to the (positive) direction
+            model_rot_x += obj_sens; // Rotate model object position to the (positive) direction
             if (model_rot_x == 360.0f)
                 model_rot_x = 0;
         }
@@ -107,24 +140,24 @@ void Key_Callback(GLFWwindow* window,
     /* Z - AXIS ROTATION */
     if (key == GLFW_KEY_E && action == GLFW_REPEAT) {
         if(isLight) {
-            light_rot_z -= sensitivity; // Rotate light object position to the (negative) direction
+            light_rot_z -= obj_sens; // Rotate light object position to the (negative) direction
             if (light_rot_z == -360.0f)
                 light_rot_z = 0;
         }
         else {
-            model_rot_z -= sensitivity; // Rotate model object position to the (negative) direction
+            model_rot_z -= obj_sens; // Rotate model object position to the (negative) direction
             if (model_rot_z == -360.0f)
                 model_rot_z = 0;
         }
     }
     if (key == GLFW_KEY_Q && action == GLFW_REPEAT) {
         if(isLight) {
-            light_rot_z += sensitivity; // Rotate light object position to the (positive) direction
+            light_rot_z += obj_sens; // Rotate light object position to the (positive) direction
             if (light_rot_z == 360.0f)
                 light_rot_z = 0;
         }
         else {
-            model_rot_z += sensitivity; // Rotate model object position to the (positive) direction
+            model_rot_z += obj_sens; // Rotate model object position to the (positive) direction
             if (model_rot_z == 360.0f)
                 model_rot_z = 0;
         }
@@ -170,10 +203,7 @@ int main(void)
     /* Initialize the library */
     if (!glfwInit())
         return -1;
-
-    float screenWidth = 720.f;
-    float screenHeight = 720.f;
-
+    
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(screenWidth, screenHeight, "Josh Aaron Khyle S. Uson", NULL, NULL);
     if (!window)
@@ -186,6 +216,10 @@ int main(void)
     glfwMakeContextCurrent(window);
     gladLoadGL();
     glfwSetKeyCallback(window, Key_Callback);
+    glfwSetCursorPosCallback(window, Mouse_Callback);
+
+    /* OPTIONAL: Aesthetic purposes for hiding the cursor and restraining it inside the application */
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     /* Enable Depth Test to fix layer ordering of rendering */
     glEnable(GL_DEPTH_TEST);
@@ -463,7 +497,6 @@ int main(void)
         glm::vec3(0.0f, 1.0f, 0.0f),    // World Up
         90.0f,                          // Yaw
         0.0f,                           // Pitch
-        0.1f,                           // Sensitivity
         screenWidth,                    // Screen Width
         screenHeight                    // Screen Height
     );
@@ -496,7 +529,7 @@ int main(void)
     PointLight pointLight(
         glm::vec3(3.0f, 2.0f, 0.0f),       // Light Position - Position of light origin (X, Y, Z)
         glm::vec3(1.0f, 1.0f, 1.0f),     // Light Color - RGB lighting of light source
-        1.0f,                       // Light Strength - intensity of diffuse light  
+        0.0f,                       // Light Strength - intensity of diffuse light  
         glm::vec3(1.0f, 1.0f, 1.0f),     // Ambient Color - RGB lighting of reflected or ambient light
         0.4f,                       // Ambient Strength - Intensity of reflected or ambient light
         glm::vec3(1.0f, 1.0f, 1.0f),   // Specular Color - RGB lighting of specular light
@@ -510,13 +543,13 @@ int main(void)
     /* DIRECTIONAL LIGHT (4, 11, -3) */
     DirectionalLight directionalLight(
         glm::vec3(4, 11, -3),     // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
-        glm::vec3(0.5, 0.5, 1), // Light Color - RGB lighting of light source
+        glm::vec3(1.0f, 1.0f, 1.0f), // Light Color - RGB lighting of light source
         1.0f,                   // Light Strength - intensity of diffuse light    
-        glm::vec3(0.5, 0.5, 1), // Ambient Color - RGB lighting of reflected or ambient light
+        glm::vec3(1.0f, 1.0f, 1.0f), // Ambient Color - RGB lighting of reflected or ambient light
         0.5f,                   // Ambient Strength - Intensity of reflected or ambient light
-        glm::vec3(0.5, 0.5, 1), // Specular Color - RGB lighting of specular light
-        10.0f,                  // Specular Strength - intensity of specular light
-        160.0f                  // Specular Phong - concentration of specular light
+        glm::vec3(1.0f, 1.0f, 1.0f), // Specular Color - RGB lighting of specular light
+        1.0f,                  // Specular Strength - intensity of specular light
+        50.0f                  // Specular Phong - concentration of specular light
     );
 
 
@@ -533,10 +566,11 @@ int main(void)
 
     
     
+    /* INITIALIZATION FOR CAMERA MOVEMENT */
+    float lastXOffset = xoffset;
+    float lastYOffset = yoffset;
 
-
-
-
+    /* INITIALIZATION FOR CAMERA VARIABLES, LOCS, AND SHADER TEMP VARIABLES*/
     glm::mat4 projection_matrix, view_matrix;
     glm::vec3 cameraPos;
     GLuint shaderProgram;    
@@ -554,13 +588,20 @@ int main(void)
 
         /* SET CAMERA TYPE - OBTAIN THE CORRECT VARIABLES FOR THE CAMERA
             1 - PERSPECTIVE
-            2 - ORTHO
+            2 - ORTHOGRAPHIC
         */
         switch (cameraType) {
             case 1:
                 projection_matrix = perspectiveCamera.getProjectionMatrix();
                 view_matrix = perspectiveCamera.getViewMatrix();
                 cameraPos = perspectiveCamera.getCameraPos();
+
+                /* UPDATE MOVEMENT OF MOUSE UPON VALUE CHANGE */
+                if (lastXOffset != xoffset || lastYOffset != yoffset) {
+                    lastXOffset = xoffset;
+                    lastYOffset = yoffset;
+                    perspectiveCamera.updateMouse(xoffset, yoffset);
+                }                                
                 break;
             case 2:
                 projection_matrix = orthoCamera.getProjectionMatrix();
@@ -573,6 +614,9 @@ int main(void)
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
         viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
+
+
+
 
         /* VARIABLES FOR OBJECT POSITION, ROTATION, SCALE - (TO BE USED LATER) */
         transformationLoc = glGetUniformLocation(shaderProgram, "transform"); // transform is the variable from sample.vert
