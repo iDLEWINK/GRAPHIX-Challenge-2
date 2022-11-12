@@ -27,7 +27,15 @@
 #include "PointLight.h"
 
 
-float light_rot_x = 0;
+
+
+float rev_x = 0;
+float rev_y = 0;
+float rev_z = 0;
+
+float radius = 3.0f;
+
+float light_rot_x = radius;
 float light_rot_y = 0;
 float light_rot_z = 0;
 
@@ -41,37 +49,41 @@ void Key_Callback(GLFWwindow* window,
     /* MOVEMENT KEYS */
     /* F Camera Vector */
     /* R Camera Vector */
-    if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
-        light_rot_y -= 2.0f; // Move camera position to the left (negative) direction
-        if (light_rot_y == -360.0f)
-            light_rot_y = 0;
-    }
-    if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
-        light_rot_y += 2.0f; // Move camera position to the right (positive) direction
-        if (light_rot_y == 360.0f)
-            light_rot_y = 0;
-    }
 
+    /* X-AXIS REVOLUTION */
     if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
-        light_rot_x -= 2.0f; // Move camera position to the left (negative) direction
-        if (light_rot_x == -360.0f)
-            light_rot_x = 0;
+        rev_x += 0.05f; // Move camera position to the left (negative) direction        
+        light_rot_y = radius * sin(rev_x);
+        light_rot_z = radius * cos(rev_x);
     }
     if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
-        light_rot_x += 2.0f; // Move camera position to the right (positive) direction
-        if (light_rot_x == 360.0f)
-            light_rot_x = 0;
+        rev_x -= 0.05f; // Move camera position to the right (positive) direction
+        light_rot_y = radius * sin(rev_x);
+        light_rot_z = radius * cos(rev_x);
     }
 
+    /* Y-AXIS REVOLUTION */
+    if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
+        rev_y += 0.05f; // Move camera position to the left (negative) direction
+        light_rot_x = radius * cos(rev_y);
+        light_rot_z = radius * sin(rev_y);
+    }
+    if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
+        rev_y -= 0.05f; // Move camera position to the right (positive) direction
+        light_rot_x = radius * cos(rev_y);
+        light_rot_z = radius * sin(rev_y);
+    }
+
+    /* Z-AXIS REVOLUTION */
     if (key == GLFW_KEY_E && action == GLFW_REPEAT) {
-        light_rot_z -= 2.0f; // Move camera position to the left (negative) direction
-        if (light_rot_z == -360.0f)
-            light_rot_z = 0;
+        rev_z += 0.05f; // Move camera position to the left (negative) direction
+        light_rot_x = radius * cos(rev_z);
+        light_rot_y = radius * sin(rev_z);
     }
     if (key == GLFW_KEY_Q && action == GLFW_REPEAT) {
-        light_rot_z += 2.0f; // Move camera position to the right (positive) direction
-        if (light_rot_z == 360.0f)
-            light_rot_z = 0;      
+        rev_z -= 0.05f; // Move camera position to the right (positive) direction
+        light_rot_x = radius * cos(rev_z);
+        light_rot_y = radius * sin(rev_z);
     }
 
     //std::cout << "x: " << light_rot_x << " y: " << light_rot_y << " z: " << light_rot_z << "\n";
@@ -443,9 +455,9 @@ int main(void)
     );
 
     orthoCamera.setProjectionMatrix(
-        -10.0f, 10.0f,  // Xmin, Xmax
-        -10.0f, 10.0f,  // Ymin, Ymax
-        -10.0f, 10.0f   // Zmin, Zmax
+        -20.0f, 20.0f,  // Xmin, Xmax
+        -20.0f, 20.0f,  // Ymin, Ymax
+        -20.0f, 20.0f   // Zmin, Zmax
     );
 
 
@@ -662,9 +674,8 @@ int main(void)
         /************ POINT LIGHT ************/                
         glm::mat4 light_obj_matrix = glm::mat4(1.0f);
         //glm::mat4 transform_matrix = glm::mat4(1.0f);
-
         light_obj_matrix = glm::translate(light_obj_matrix, glm::vec3(light_rot_x, light_rot_y, light_rot_z));
-
+        pointLight.lightPos = glm::vec3(light_rot_x, light_rot_y, light_rot_z);
 
 
 
