@@ -17,6 +17,9 @@ uniform vec3 pointSpecColor; // specular light color
 uniform float pointSpecStr; // specular intensity or strength
 uniform float pointSpecPhong; // spread or concentration of the specular light
 
+uniform float constant;
+uniform float linear;
+uniform float quadratic;
 
 
 /* DIRECTIONAL LIGHT */
@@ -96,10 +99,11 @@ void main(){
     vec3 pointSpecCol = pointSpec * pointSpecStr * pointSpecColor; //  Combine spec with intensity and chosen RGB coler
 
     /* POINT */
-    /* NOTE: Values are determined from a recommended light combinations table from Ogre3D - www.ogre3d.org/tikiwiki/tiki-index.php?page=-Point+Light+Attenuation */
-    float constant = 1.0f; // Ensures the denominator never gets smaller than 1
-    float linear = 0.0014f; // Reduces the intensity in in a linear fashion
-    float quadratic = 0.000007f; // Quadratic decrease of light source intensity
+    /* NOTE: Values are determined from a recommended light combinations table from Ogre3D - www.ogre3d.org/tikiwiki/tiki-index.php?page=-Point+Light+Attenuation 
+        float constant - Ensures the denominator never gets smaller than 1
+        float linear - Reduces the intensity in in a linear fashion
+        float quadratic - Quadratic decrease of light source intensity        
+    */    
 
     float distance = length(pointLightPos - fragPos); // solve for the distance between the position of the light source and the object source
     float attenuation = 1.0f / (constant + (linear * distance) + (quadratic * (distance * distance))); // solve for the attenuation via. inverse law; (1.0 / distance ^ 2)

@@ -39,6 +39,7 @@ float model_rot_z = 0;
 float sensitivity = 2.0f;
 
 bool isLight = false;
+glm::vec3 control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
 
 /* KEYS FEEDBACK */
 void Key_Callback(GLFWwindow* window,
@@ -130,6 +131,11 @@ void Key_Callback(GLFWwindow* window,
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         /* Switches the flag for the state */
         isLight = !isLight;
+        /* CHANGE COLOR BEHAVIOR */
+        if (isLight)
+            control_rgb = glm::vec3(0.47f, 1.0f, 0.37f);
+        else 
+            control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
     }
 
     //std::cout << "x: " << light_rot_x << " y: " << light_rot_y << " z: " << light_rot_z << "\n";
@@ -174,8 +180,6 @@ int main(void)
     glViewport(0, 0, screenWidth, screenHeight);
 
 
-
-
     /* TEXTURES HERE */
     stbi_set_flip_vertically_on_load(true); // For image flip; Loads it in an upright manner.    
 
@@ -214,12 +218,6 @@ int main(void)
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(tex_bytes); // Free from memory   
     /* TEXTURE SETUP END */
-
-
-
-
-
-
 
     /* Main Object + Point & Directional Light */
     /* Light Object + Unlit */
@@ -260,28 +258,6 @@ int main(void)
     }
 
 
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* OBJECT LOADING + SETUP MESH START */
     /*Initialized list of VAOs and VBOs has an ID of unsigned integer - will be called by glGenVertexArrays*/
     std::string paths[2] = { "3D/shroom.obj", "3D/myCube.obj"};
@@ -310,8 +286,6 @@ int main(void)
 
     GLintptr normPtr;
     GLintptr uvPtr;
-
-
 
 
     /* VAO0 - Mushroom COMPLETE */
@@ -400,9 +374,6 @@ int main(void)
     glEnableVertexAttribArray(0); // Position
     glEnableVertexAttribArray(1); // Normals
     glEnableVertexAttribArray(2); // Textures    
-
-
-
 
 
 
@@ -526,17 +497,17 @@ int main(void)
     /* LIGHTING */
     /* POINT LIGHT */
     PointLight pointLight(
-        glm::vec3(3.0, 2.0, 0.0),       // Light Position - Position of light origin (X, Y, Z)
-        glm::vec3(1, 0.2, 0.2),     // Light Color - RGB lighting of light source
+        glm::vec3(3.0f, 2.0f, 0.0f),       // Light Position - Position of light origin (X, Y, Z)
+        glm::vec3(1.0f, 1.0f, 1.0f),     // Light Color - RGB lighting of light source
         1.0f,                       // Light Strength - intensity of diffuse light  
-        glm::vec3(1, 0.5, 0.5),     // Ambient Color - RGB lighting of reflected or ambient light
+        glm::vec3(1.0f, 1.0f, 1.0f),     // Ambient Color - RGB lighting of reflected or ambient light
         0.4f,                       // Ambient Strength - Intensity of reflected or ambient light
-        glm::vec3(0.5, 0.7, 0.5),   // Specular Color - RGB lighting of specular light
+        glm::vec3(1.0f, 1.0f, 1.0f),   // Specular Color - RGB lighting of specular light
         1.0f,                       // Specular Strength - intensity of specular light
         16.0f,                      // Specular Phong - concentration of specular light
         1.0f,                       // Constant Value for Attenuation
-        0.0014f,                    // Linear Value for Attenuation
-        0.000007f                   // Quadratic Value for Attenuation
+        0.35f,                    // Linear Value for Attenuation
+        0.44f                   // Quadratic Value for Attenuation
     );
     
     /* DIRECTIONAL LIGHT (4, 11, -3) */
@@ -545,7 +516,7 @@ int main(void)
         glm::vec3(0.5, 0.5, 1), // Light Color - RGB lighting of light source
         1.0f,                   // Light Strength - intensity of diffuse light    
         glm::vec3(0.5, 0.5, 1), // Ambient Color - RGB lighting of reflected or ambient light
-        0.9f,                   // Ambient Strength - Intensity of reflected or ambient light
+        0.5f,                   // Ambient Strength - Intensity of reflected or ambient light
         glm::vec3(0.5, 0.5, 1), // Specular Color - RGB lighting of specular light
         10.0f,                  // Specular Strength - intensity of specular light
         160.0f                  // Specular Phong - concentration of specular light
@@ -577,37 +548,19 @@ int main(void)
 
     glm::mat4 projection_matrix, view_matrix;
     glm::vec3 cameraPos;
+    GLuint shaderProgram;
+
+    unsigned int projectionLoc, viewLoc, transformationLoc;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);              
+        
+        
 
-
-
-       
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        // REMOVE THIS - USE SHADER 0
-        GLuint shaderProgram;
+        /* USE SHADER 0 - LIT OBJECT SHADER */        
         shaderProgram = shaderPrograms[0];
         glUseProgram(shaderProgram);
 
@@ -624,18 +577,53 @@ int main(void)
         view_matrix = perspectiveCamera.getViewMatrix();
         cameraPos = perspectiveCamera.getCameraPos();
 
-        unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+        projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
-        unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
 
 
         /* VARIABLES FOR OBJECT POSITION, ROTATION, SCALE - (TO BE USED LATER) */
-        unsigned int transformationLoc = glGetUniformLocation(shaderProgram, "transform"); // transform is the variable from sample.vert
+        transformationLoc = glGetUniformLocation(shaderProgram, "transform"); // transform is the variable from sample.vert
         /* VARIABLES FOR TEXTURE*/
         GLuint tex0Address = glGetUniformLocation(shaderProgram, "tex0"); // Get the address
         glUniform1i(tex0Address, 0); // Comes from GL_TEXTURE 0
 
+
+        /* OBJECTS TRANSFORMATION */
+        /************ LIGHT OBJ MATRIX and SAVE POINT LIGHT ************/
+        /* Base transformation matrix */
+        glm::mat4 light_obj_matrix = glm::mat4(1.0f);
+        glm::mat4 transform_matrix = glm::mat4(1.0f);
+
+        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X - Axis Rotation
+        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y - Axis Rotation
+        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z - Axis Rotation
+
+        light_obj_matrix = glm::translate(light_obj_matrix, pointLight.lightPos); //Translate the light rotated matrix
+
+        float l_scale_x, l_scale_y, l_scale_z;
+        l_scale_x = l_scale_y = l_scale_z = 0.25f;
+        light_obj_matrix = glm::scale(light_obj_matrix, glm::vec3(l_scale_x, l_scale_y, l_scale_z)); // Provide the necessary scale
+
+        pointLight.lightPos = transform_matrix * glm::vec4(3.0f, 2.0f, 0.0f, 1.0f); // Save the position for lightPos for later - to synchronize with the position of the light box object
+
+
+        /************ MODEL OBJ MATRIX ************/
+        /* Base transformation matrix */
+        glm::mat4 model_matrix = glm::mat4(1.0);
+
+        /* POSITIONS */
+        model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, 0.0f));
+
+        /* SCALING */
+        float m_scale_x, m_scale_y, m_scale_z;
+        m_scale_x = m_scale_y = m_scale_z = 0.003f;
+        model_matrix = glm::scale(model_matrix, glm::vec3(m_scale_x, m_scale_y, m_scale_z));
+
+        model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X - Axis Rotation
+        model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y - Axis Rotation
+        model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z - Axis Rotation
 
 
 
@@ -652,7 +640,6 @@ int main(void)
             - GLUNIFORM SET TO CALL WHEN SAY UPDATE USE LIGHT
             - NO NEED TO TURN VARIABLES TO PRIVATE YET; WE CAN DO THAT LATER
         */
-
 
         // LIGHT POSITION AND COLOR
         unsigned int directionalLightPosLoc = glGetUniformLocation(shaderProgram, "directionalLightPos");     // Light Pos
@@ -679,39 +666,7 @@ int main(void)
 
         
 
-        /************ LIGHT OBJ MATRIX and SAVE POINT LIGHT ************/           
-        /* Base transformation matrix */
-        glm::mat4 light_obj_matrix = glm::mat4(1.0f);
-        glm::mat4 transform_matrix = glm::mat4(1.0f);
-
-        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X - Axis Rotation
-        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y - Axis Rotation
-        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z - Axis Rotation
         
-        light_obj_matrix = glm::translate(light_obj_matrix, pointLight.lightPos); //Translate the light rotated matrix
-
-        float c_scale_x, c_scale_y, c_scale_z;
-        c_scale_x = c_scale_y = c_scale_z = 0.25f;
-        light_obj_matrix = glm::scale(light_obj_matrix, glm::vec3(c_scale_x, c_scale_y, c_scale_z)); // Provide the necessary scale
-
-        pointLight.lightPos = transform_matrix * glm::vec4(3.0f, 2.0f, 0.0f, 1.0f); // Save the position for lightPos for later - to synchronize with the position of the light box object
-                        
-
-        /************ MODEL OBJ MATRIX ************/
-        /* Base transformation matrix */
-        glm::mat4 model_matrix = glm::mat4(1.0);
-
-        /* POSITIONS */
-        model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, 0.0f)); 
-
-        /* SCALING */
-        float l_scale_x, l_scale_y, l_scale_z;
-        l_scale_x = l_scale_y = l_scale_z = 0.003f;
-        model_matrix = glm::scale(model_matrix, glm::vec3(l_scale_x, l_scale_y, l_scale_z));
-
-        model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X - Axis Rotation
-        model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y - Axis Rotation
-        model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z - Axis Rotation
 
 
 
@@ -722,11 +677,14 @@ int main(void)
 
 
 
+        /************ POINT LIGHT ************/
+        pointLight.lightColor = control_rgb;
+        pointLight.ambientColor = control_rgb;
+        pointLight.specColor = control_rgb;
 
         // LIGHT POSITION AND COLOR
         unsigned int pointLightPosLoc = glGetUniformLocation(shaderProgram, "pointLightPos");     // Light Pos
         glUniform3fv(pointLightPosLoc, 1, glm::value_ptr(pointLight.lightPos));
-
         unsigned int pointLightColorLoc = glGetUniformLocation(shaderProgram, "pointLightColor"); // Light Color
         glUniform3fv(pointLightColorLoc, 1, glm::value_ptr(pointLight.lightColor));
         unsigned int pointLightStrLoc = glGetUniformLocation(shaderProgram, "pointLightStr"); // Light Color
@@ -748,7 +706,13 @@ int main(void)
         unsigned int pointSpecPhongLoc = glGetUniformLocation(shaderProgram, "pointSpecPhong");       // Specular Phong
         glUniform1f(pointSpecPhongLoc, pointLight.specPhong);
 
-
+        // ATTENUATION
+        unsigned int pointConstantLoc = glGetUniformLocation(shaderProgram, "constant");       // Constant
+        glUniform1f(pointConstantLoc, pointLight.constant);
+        unsigned int pointLinearLoc = glGetUniformLocation(shaderProgram, "linear");       // Linear
+        glUniform1f(pointLinearLoc, pointLight.linear);
+        unsigned int pointQuadraticLoc = glGetUniformLocation(shaderProgram, "quadratic");       // Quadratic
+        glUniform1f(pointQuadraticLoc, pointLight.quadratic);
 
 
         
@@ -783,20 +747,18 @@ int main(void)
 
 
 
-        // REMOVE THIS
+        /* USE SHADER 1 - UNLIT OBJECT SHADER */
         shaderProgram = shaderPrograms[1];
         glUseProgram(shaderProgram);
 
+        unsigned int colorLoc = glGetUniformLocation(shaderProgram, "color_rgba");
+        glUniform4f(colorLoc, control_rgb.x, control_rgb.y, control_rgb.z, 1.0f);
         transformationLoc = glGetUniformLocation(shaderProgram, "transform");
         glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(light_obj_matrix));
         projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
         viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
-
-        /* LIGHT OBJECT ITEM - VAO1 */       
-        // LIGHT OBJECT TRANSFORM MATRIX
-
         
         // DRAW OBJECT1 
         glBindVertexArray(VAO[1]);
@@ -812,8 +774,8 @@ int main(void)
     }
 
     // Clean up
-    glDeleteVertexArrays(3, VAO);
-    glDeleteBuffers(3, VBO);
+    glDeleteVertexArrays(2, VAO);
+    glDeleteBuffers(2, VBO);
        
     glfwTerminate();
     return 0;
