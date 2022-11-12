@@ -26,6 +26,66 @@
 #include "DirectionalLight.h"
 #include "PointLight.h"
 
+
+float light_rot_x = 0;
+float light_rot_y = 0;
+float light_rot_z = 0;
+
+/* KEYS FEEDBACK */
+void Key_Callback(GLFWwindow* window,
+    int key,
+    int scancode,
+    int action,
+    int mods)
+{
+    /* MOVEMENT KEYS */
+    /* F Camera Vector */
+    /* R Camera Vector */
+    if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
+        light_rot_y -= 2.0f; // Move camera position to the left (negative) direction
+        if (light_rot_y == -360.0f)
+            light_rot_y = 0;
+    }
+    if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
+        light_rot_y += 2.0f; // Move camera position to the right (positive) direction
+        if (light_rot_y == 360.0f)
+            light_rot_y = 0;
+    }
+
+    if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
+        light_rot_x -= 2.0f; // Move camera position to the left (negative) direction
+        if (light_rot_x == -360.0f)
+            light_rot_x = 0;
+    }
+    if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
+        light_rot_x += 2.0f; // Move camera position to the right (positive) direction
+        if (light_rot_x == 360.0f)
+            light_rot_x = 0;
+    }
+
+    if (key == GLFW_KEY_E && action == GLFW_REPEAT) {
+        light_rot_z -= 2.0f; // Move camera position to the left (negative) direction
+        if (light_rot_z == -360.0f)
+            light_rot_z = 0;
+    }
+    if (key == GLFW_KEY_Q && action == GLFW_REPEAT) {
+        light_rot_z += 2.0f; // Move camera position to the right (positive) direction
+        if (light_rot_z == 360.0f)
+            light_rot_z = 0;      
+    }
+
+    //std::cout << "x: " << light_rot_x << " y: " << light_rot_y << " z: " << light_rot_z << "\n";
+    
+    /* EXIT APPLICATION */
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+}
+
+
+
+
+
 int main(void)
 {
     GLFWwindow* window;
@@ -34,7 +94,7 @@ int main(void)
     if (!glfwInit())
         return -1;
 
-    float screenWidth = 1280.f;
+    float screenWidth = 720.f;
     float screenHeight = 720.f;
 
     /* Create a windowed mode window and its OpenGL context */
@@ -48,7 +108,7 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     gladLoadGL();
-    
+    glfwSetKeyCallback(window, Key_Callback);
 
     /* Enable Depth Test to fix layer ordering of rendering */
     glEnable(GL_DEPTH_TEST);
@@ -374,7 +434,19 @@ int main(void)
     );   
 
     /* ORTHOGRAPHIC CAMERA */
+    OrthoCamera orthoCamera(
+        glm::vec3(0.0f, 10.0f, 0.0f),   // Camera Position
+        glm::vec3(0.0f, 0.0f, 0.0f),    // Camera Center
+        glm::vec3(0.0f, 0.0f, -1.0f),   // World Up
+        90.0f,                          // Pitch
+        0.0f                            // Yaw
+    );
 
+    orthoCamera.setProjectionMatrix(
+        -10.0f, 10.0f,  // Xmin, Xmax
+        -10.0f, 10.0f,  // Ymin, Ymax
+        -10.0f, 10.0f   // Zmin, Zmax
+    );
 
 
 
@@ -396,7 +468,7 @@ int main(void)
     /* LIGHTING */
     /* POINT LIGHT */
     PointLight pointLight(
-        glm::vec3(3.0, 2.0, 0.0),       // Light Position - Position of light origin (X, Y, Z)
+        glm::vec3(0.0, 0.0, 0.0),       // Light Position - Position of light origin (X, Y, Z)
         glm::vec3(1, 0.2, 0.2),     // Light Color - RGB lighting of light source
         1.0f,                       // Light Strength - intensity of diffuse light  
         glm::vec3(1, 0.5, 0.5),     // Ambient Color - RGB lighting of reflected or ambient light
@@ -430,8 +502,6 @@ int main(void)
 
 
 
-
-
     /* TRANSFORMATION MATRIX */
     float z = 0.0f;
     /* Create identity matrix */
@@ -439,32 +509,26 @@ int main(void)
 
     /* Base transformation matrix */
     glm::mat4 model_matrix = identity_matrix4;
-    glm::mat4 light_obj_matrix = identity_matrix4;
+    
 
     /* POSITIONS */
     model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, z));
-    light_obj_matrix = glm::translate(light_obj_matrix, glm::vec3(3.0f, 2.0f, z));
 
     /* SCALING */
     // MODEL OBJECT
     float l_scale_x, l_scale_y, l_scale_z; 
     l_scale_x = l_scale_y = l_scale_z = 0.003f;
     model_matrix = glm::scale(model_matrix, glm::vec3(l_scale_x, l_scale_y, l_scale_z));
-    // LIGHT OBJECT
-    float c_scale_x, c_scale_y, c_scale_z;
-    c_scale_x = c_scale_y = c_scale_z = 0.25f;
-    light_obj_matrix = glm::scale(light_obj_matrix, glm::vec3(c_scale_x, c_scale_y, c_scale_z));
 
+    
     float theta, rot_x, rot_y, rot_z;
     /* ROTATION Y - AXIS */
     rot_x = rot_z = 0.0f;
     rot_y = 1.0f;
     // MODEL OBJECT
     theta = 0.0f;
-    model_matrix = glm::rotate(model_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
-    // LIGHT OBJECT
-    theta = 0.0f;
-    light_obj_matrix = glm::rotate(light_obj_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
+    model_matrix = glm::rotate(model_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));    
+    
 
     /* ROTATION X - AXIS */
     rot_y = rot_z = 0.0f;
@@ -474,7 +538,7 @@ int main(void)
     model_matrix = glm::rotate(model_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
     // LIGHT OBJECT
     theta = 0.0f;
-    light_obj_matrix = glm::rotate(light_obj_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
+    
     
 
 
@@ -487,6 +551,7 @@ int main(void)
 
 
     glm::mat4 projection_matrix, view_matrix;
+    glm::vec3 cameraPos;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -494,15 +559,46 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);              
 
-        projection_matrix = perspectiveCamera.getProjectionMatrix();
-        view_matrix = perspectiveCamera.getViewMatrix();
 
+
+       
+
+
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         // REMOVE THIS
         GLuint shaderProgram;
         shaderProgram = shaderPrograms[0];
         glUseProgram(shaderProgram);
 
+
+
+
+
+
+
+
+
         /* VARIABLES FOR CAMERA */
+        projection_matrix = perspectiveCamera.getProjectionMatrix();
+        view_matrix = perspectiveCamera.getViewMatrix();
+        cameraPos = perspectiveCamera.getCameraPos();
+
         unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
         unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
@@ -516,11 +612,23 @@ int main(void)
         glUniform1i(tex0Address, 0); // Comes from GL_TEXTURE 0
 
 
+
+
+
+
+
+
         /* VARIABLES FOR LIGHTING */
-
-
-
         /************ DIRECTIONAL LIGHT ************/
+
+        /*
+            - SINGLE CALL TO SET THE SHADER PROGRAM
+            - LOCS TO PRIVATE VARIABLES (CALL ONCE ONLY)
+            - GLUNIFORM SET TO CALL WHEN SAY UPDATE USE LIGHT
+            - NO NEED TO TURN VARIABLES TO PRIVATE YET; WE CAN DO THAT LATER
+        */
+
+
         // LIGHT POSITION AND COLOR
         unsigned int directionalLightPosLoc = glGetUniformLocation(shaderProgram, "directionalLightPos");     // Light Pos
         glUniform3fv(directionalLightPosLoc, 1, glm::value_ptr(directionalLight.direction));
@@ -549,11 +657,71 @@ int main(void)
 
 
 
+        
 
-        /************ POINT LIGHT ************/
+        /************ POINT LIGHT ************/                
+        glm::mat4 light_obj_matrix = glm::mat4(1.0f);
+        //glm::mat4 transform_matrix = glm::mat4(1.0f);
+
+        light_obj_matrix = glm::translate(light_obj_matrix, glm::vec3(light_rot_x, light_rot_y, light_rot_z));
+
+
+
+
+        /*
+        glm::vec3 lightPosChange = pointLight.lightPos;
+
+        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X
+        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y
+        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z
+
+        //transform_matrix = glm::translate(transform_matrix, glm::vec3(3.0f, 2.0f, 0.0f));
+        pointLight.lightPos = glm::vec4(3.0f, 2.0f, 0.0f, 0.0f) * transform_matrix;
+
+
+        */
+
+
+        //light_obj_matrix = transform_matrix;
+
+
+
+
+
+
+        //pointLight.lightPos = glm::vec4(3.0f, 2.0f, 0.0f, 0.0f) * transform_matrix;
+
+
+
+
+
+        // The light obj matches the light, so the problem lies in the light position
+        
+        float c_scale_x, c_scale_y, c_scale_z;
+        c_scale_x = c_scale_y = c_scale_z = 0.25f;
+        light_obj_matrix = glm::scale(light_obj_matrix, glm::vec3(c_scale_x, c_scale_y, c_scale_z));
+                        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // LIGHT POSITION AND COLOR
         unsigned int pointLightPosLoc = glGetUniformLocation(shaderProgram, "pointLightPos");     // Light Pos
         glUniform3fv(pointLightPosLoc, 1, glm::value_ptr(pointLight.lightPos));
+
         unsigned int pointLightColorLoc = glGetUniformLocation(shaderProgram, "pointLightColor"); // Light Color
         glUniform3fv(pointLightColorLoc, 1, glm::value_ptr(pointLight.lightColor));
         unsigned int pointLightStrLoc = glGetUniformLocation(shaderProgram, "pointLightStr"); // Light Color
@@ -567,19 +735,13 @@ int main(void)
 
         // CAMERA POSITION, SPECULAR STRENGTH, AND SPECULAR PHONG
         unsigned int cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");       // Camera Position
-        glUniform3fv(cameraPosLoc, 1, glm::value_ptr(perspectiveCamera.getCameraPos()));
+        glUniform3fv(cameraPosLoc, 1, glm::value_ptr(cameraPos));
         unsigned int pointSpecStrLoc = glGetUniformLocation(shaderProgram, "pointSpecStr");           // Specular Intensity
         glUniform1f(pointSpecStrLoc, pointLight.specStr);
         unsigned int pointSpecColorLoc = glGetUniformLocation(shaderProgram, "pointSpecColor");       // Specular Color
         glUniform3fv(pointSpecColorLoc, 1, glm::value_ptr(pointLight.specColor));
         unsigned int pointSpecPhongLoc = glGetUniformLocation(shaderProgram, "pointSpecPhong");       // Specular Phong
         glUniform1f(pointSpecPhongLoc, pointLight.specPhong);
-
-
-
-
-
-
 
 
         
