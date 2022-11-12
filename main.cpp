@@ -27,15 +27,7 @@
 #include "PointLight.h"
 
 
-
-
-float rev_x = 0;
-float rev_y = 0;
-float rev_z = 0;
-
-float radius = 3.0f;
-
-float light_rot_x = radius;
+float light_rot_x = 0;
 float light_rot_y = 0;
 float light_rot_z = 0;
 
@@ -49,41 +41,37 @@ void Key_Callback(GLFWwindow* window,
     /* MOVEMENT KEYS */
     /* F Camera Vector */
     /* R Camera Vector */
-
-    /* X-AXIS REVOLUTION */
-    if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
-        rev_x += 0.05f; // Move camera position to the left (negative) direction        
-        light_rot_y = radius * sin(rev_x);
-        light_rot_z = radius * cos(rev_x);
-    }
-    if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
-        rev_x -= 0.05f; // Move camera position to the right (positive) direction
-        light_rot_y = radius * sin(rev_x);
-        light_rot_z = radius * cos(rev_x);
-    }
-
-    /* Y-AXIS REVOLUTION */
     if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
-        rev_y += 0.05f; // Move camera position to the left (negative) direction
-        light_rot_x = radius * cos(rev_y);
-        light_rot_z = radius * sin(rev_y);
+        light_rot_y -= 2.0f; // Move camera position to the left (negative) direction
+        if (light_rot_y == -360.0f)
+            light_rot_y = 0;
     }
     if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
-        rev_y -= 0.05f; // Move camera position to the right (positive) direction
-        light_rot_x = radius * cos(rev_y);
-        light_rot_z = radius * sin(rev_y);
+        light_rot_y += 2.0f; // Move camera position to the right (positive) direction
+        if (light_rot_y == 360.0f)
+            light_rot_y = 0;
     }
 
-    /* Z-AXIS REVOLUTION */
+    if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
+        light_rot_x -= 2.0f; // Move camera position to the left (negative) direction
+        if (light_rot_x == -360.0f)
+            light_rot_x = 0;
+    }
+    if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
+        light_rot_x += 2.0f; // Move camera position to the right (positive) direction
+        if (light_rot_x == 360.0f)
+            light_rot_x = 0;
+    }
+
     if (key == GLFW_KEY_E && action == GLFW_REPEAT) {
-        rev_z += 0.05f; // Move camera position to the left (negative) direction
-        light_rot_x = radius * cos(rev_z);
-        light_rot_y = radius * sin(rev_z);
+        light_rot_z -= 2.0f; // Move camera position to the left (negative) direction
+        if (light_rot_z == -360.0f)
+            light_rot_z = 0;
     }
     if (key == GLFW_KEY_Q && action == GLFW_REPEAT) {
-        rev_z -= 0.05f; // Move camera position to the right (positive) direction
-        light_rot_x = radius * cos(rev_z);
-        light_rot_y = radius * sin(rev_z);
+        light_rot_z += 2.0f; // Move camera position to the right (positive) direction
+        if (light_rot_z == 360.0f)
+            light_rot_z = 0;      
     }
 
     //std::cout << "x: " << light_rot_x << " y: " << light_rot_y << " z: " << light_rot_z << "\n";
@@ -455,9 +443,9 @@ int main(void)
     );
 
     orthoCamera.setProjectionMatrix(
-        -20.0f, 20.0f,  // Xmin, Xmax
-        -20.0f, 20.0f,  // Ymin, Ymax
-        -20.0f, 20.0f   // Zmin, Zmax
+        -10.0f, 10.0f,  // Xmin, Xmax
+        -10.0f, 10.0f,  // Ymin, Ymax
+        -10.0f, 10.0f   // Zmin, Zmax
     );
 
 
@@ -480,7 +468,7 @@ int main(void)
     /* LIGHTING */
     /* POINT LIGHT */
     PointLight pointLight(
-        glm::vec3(0.0, 0.0, 0.0),       // Light Position - Position of light origin (X, Y, Z)
+        glm::vec3(3.0, 2.0, 0.0),       // Light Position - Position of light origin (X, Y, Z)
         glm::vec3(1, 0.2, 0.2),     // Light Color - RGB lighting of light source
         1.0f,                       // Light Strength - intensity of diffuse light  
         glm::vec3(1, 0.5, 0.5),     // Ambient Color - RGB lighting of reflected or ambient light
@@ -513,6 +501,7 @@ int main(void)
 
 
 
+    /* MODEL OBJECT */
 
     /* TRANSFORMATION MATRIX */
     float z = 0.0f;
@@ -521,13 +510,11 @@ int main(void)
 
     /* Base transformation matrix */
     glm::mat4 model_matrix = identity_matrix4;
-    
 
     /* POSITIONS */
     model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, z));
 
     /* SCALING */
-    // MODEL OBJECT
     float l_scale_x, l_scale_y, l_scale_z; 
     l_scale_x = l_scale_y = l_scale_z = 0.003f;
     model_matrix = glm::scale(model_matrix, glm::vec3(l_scale_x, l_scale_y, l_scale_z));
@@ -537,7 +524,6 @@ int main(void)
     /* ROTATION Y - AXIS */
     rot_x = rot_z = 0.0f;
     rot_y = 1.0f;
-    // MODEL OBJECT
     theta = 0.0f;
     model_matrix = glm::rotate(model_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));    
     
@@ -545,11 +531,9 @@ int main(void)
     /* ROTATION X - AXIS */
     rot_y = rot_z = 0.0f;
     rot_x = 1.0f;
-    // MODEL OBJECT
     theta = 0.0f;
     model_matrix = glm::rotate(model_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
-    // LIGHT OBJECT
-    theta = 0.0f;
+
     
     
 
@@ -673,41 +657,16 @@ int main(void)
 
         /************ POINT LIGHT ************/                
         glm::mat4 light_obj_matrix = glm::mat4(1.0f);
-        //glm::mat4 transform_matrix = glm::mat4(1.0f);
-        light_obj_matrix = glm::translate(light_obj_matrix, glm::vec3(light_rot_x, light_rot_y, light_rot_z));
-        pointLight.lightPos = glm::vec3(light_rot_x, light_rot_y, light_rot_z);
-
-
-
-        /*
-        glm::vec3 lightPosChange = pointLight.lightPos;
+        glm::mat4 transform_matrix = glm::mat4(1.0f);
 
         transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X
         transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y
         transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z
 
-        //transform_matrix = glm::translate(transform_matrix, glm::vec3(3.0f, 2.0f, 0.0f));
-        pointLight.lightPos = glm::vec4(3.0f, 2.0f, 0.0f, 0.0f) * transform_matrix;
-
-
-        */
-
-
-        //light_obj_matrix = transform_matrix;
-
-
-
-
-
-
-        //pointLight.lightPos = glm::vec4(3.0f, 2.0f, 0.0f, 0.0f) * transform_matrix;
-
-
-
-
-
-        // The light obj matches the light, so the problem lies in the light position
+        pointLight.lightPos = transform_matrix * glm::vec4(3.0f, 2.0f, 0.0f, 1.0f);
         
+        light_obj_matrix = glm::translate(light_obj_matrix, pointLight.lightPos);
+
         float c_scale_x, c_scale_y, c_scale_z;
         c_scale_x = c_scale_y = c_scale_z = 0.25f;
         light_obj_matrix = glm::scale(light_obj_matrix, glm::vec3(c_scale_x, c_scale_y, c_scale_z));
