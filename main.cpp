@@ -26,10 +26,19 @@
 #include "DirectionalLight.h"
 #include "PointLight.h"
 
-
+/* LIGHT OBJECT ROTATION */
 float light_rot_x = 0;
 float light_rot_y = 0;
 float light_rot_z = 0;
+
+/* MODEL OBJECT ROTATION */
+float model_rot_x = 0;
+float model_rot_y = 0;
+float model_rot_z = 0;
+
+float sensitivity = 2.0f;
+
+bool isLight = false;
 
 /* KEYS FEEDBACK */
 void Key_Callback(GLFWwindow* window,
@@ -38,40 +47,89 @@ void Key_Callback(GLFWwindow* window,
     int action,
     int mods)
 {
-    /* MOVEMENT KEYS */
-    /* F Camera Vector */
-    /* R Camera Vector */
+    /* MODEL MOVEMENT KEYS */
+    /* Y - AXIS ROTATION */
     if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
-        light_rot_y -= 2.0f; // Move camera position to the left (negative) direction
-        if (light_rot_y == -360.0f)
-            light_rot_y = 0;
+        if(isLight) {
+            light_rot_y -= sensitivity; // Rotate light object position to the (negative) direction
+            if (light_rot_y == -360.0f)
+                light_rot_y = 0;
+        }
+        else {
+            model_rot_y -= sensitivity; // Rotate model object position to the (negative) direction
+            if (model_rot_y == -360.0f)
+                model_rot_y = 0;
+        }
     }
     if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
-        light_rot_y += 2.0f; // Move camera position to the right (positive) direction
-        if (light_rot_y == 360.0f)
-            light_rot_y = 0;
+        if(isLight) {
+            light_rot_y += sensitivity; // Rotate light object position to the (positive) direction
+            if (light_rot_y == 360.0f)
+                light_rot_y = 0;
+        }
+        else {
+            model_rot_y += sensitivity; // Rotate model object position to the (positive) direction
+            if (model_rot_y == 360.0f)
+                model_rot_y = 0;
+        }
     }
 
+    /* X - AXIS ROTATION */
     if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
-        light_rot_x -= 2.0f; // Move camera position to the left (negative) direction
-        if (light_rot_x == -360.0f)
-            light_rot_x = 0;
+        if(isLight) {
+            light_rot_x -= sensitivity; // Rotate light object position to the (negative) direction
+            if (light_rot_x == -360.0f)
+                light_rot_x = 0;
+        }
+        else {
+            model_rot_x -= sensitivity; // Rotate model object position to the (negative) direction
+            if (model_rot_x == -360.0f)
+                model_rot_x = 0;
+        }
     }
     if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
-        light_rot_x += 2.0f; // Move camera position to the right (positive) direction
-        if (light_rot_x == 360.0f)
-            light_rot_x = 0;
+        if(isLight) {
+            light_rot_x += sensitivity; // Rotate light object position to the (positive) direction
+            if (light_rot_x == 360.0f)
+                light_rot_x = 0;
+        }
+        else {
+            model_rot_x += sensitivity; // Rotate model object position to the (positive) direction
+            if (model_rot_x == 360.0f)
+                model_rot_x = 0;
+        }
     }
 
+    /* Z - AXIS ROTATION */
     if (key == GLFW_KEY_E && action == GLFW_REPEAT) {
-        light_rot_z -= 2.0f; // Move camera position to the left (negative) direction
-        if (light_rot_z == -360.0f)
-            light_rot_z = 0;
+        if(isLight) {
+            light_rot_z -= sensitivity; // Rotate light object position to the (negative) direction
+            if (light_rot_z == -360.0f)
+                light_rot_z = 0;
+        }
+        else {
+            model_rot_z -= sensitivity; // Rotate model object position to the (negative) direction
+            if (model_rot_z == -360.0f)
+                model_rot_z = 0;
+        }
     }
     if (key == GLFW_KEY_Q && action == GLFW_REPEAT) {
-        light_rot_z += 2.0f; // Move camera position to the right (positive) direction
-        if (light_rot_z == 360.0f)
-            light_rot_z = 0;      
+        if(isLight) {
+            light_rot_z += sensitivity; // Rotate light object position to the (positive) direction
+            if (light_rot_z == 360.0f)
+                light_rot_z = 0;
+        }
+        else {
+            model_rot_z += sensitivity; // Rotate model object position to the (positive) direction
+            if (model_rot_z == 360.0f)
+                model_rot_z = 0;
+        }
+    }
+
+    /* SWITCH BETWEEN MODEL OBJECT AND LIGHT OBJECT */
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        /* Switches the flag for the state */
+        isLight = !isLight;
     }
 
     //std::cout << "x: " << light_rot_x << " y: " << light_rot_y << " z: " << light_rot_z << "\n";
@@ -501,38 +559,9 @@ int main(void)
 
 
 
-    /* MODEL OBJECT */
 
-    /* TRANSFORMATION MATRIX */
-    float z = 0.0f;
-    /* Create identity matrix */
-    glm::mat4 identity_matrix4 = glm::mat4(1.0f);
 
-    /* Base transformation matrix */
-    glm::mat4 model_matrix = identity_matrix4;
-
-    /* POSITIONS */
-    model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, z));
-
-    /* SCALING */
-    float l_scale_x, l_scale_y, l_scale_z; 
-    l_scale_x = l_scale_y = l_scale_z = 0.003f;
-    model_matrix = glm::scale(model_matrix, glm::vec3(l_scale_x, l_scale_y, l_scale_z));
-
-    
-    float theta, rot_x, rot_y, rot_z;
-    /* ROTATION Y - AXIS */
-    rot_x = rot_z = 0.0f;
-    rot_y = 1.0f;
-    theta = 0.0f;
-    model_matrix = glm::rotate(model_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));    
-    
-
-    /* ROTATION X - AXIS */
-    rot_y = rot_z = 0.0f;
-    rot_x = 1.0f;
-    theta = 0.0f;
-    model_matrix = glm::rotate(model_matrix, glm::radians(theta), glm::normalize(glm::vec3(rot_x, rot_y, rot_z)));
+   
 
     
     
@@ -577,7 +606,7 @@ int main(void)
         
         
         
-        // REMOVE THIS
+        // REMOVE THIS - USE SHADER 0
         GLuint shaderProgram;
         shaderProgram = shaderPrograms[0];
         glUseProgram(shaderProgram);
@@ -648,35 +677,41 @@ int main(void)
         glUniform1f(directionalSpecPhongLoc, directionalLight.specPhong);
 
 
-
-
-
-
-
         
 
-        /************ POINT LIGHT ************/                
+        /************ LIGHT OBJ MATRIX and SAVE POINT LIGHT ************/           
+        /* Base transformation matrix */
         glm::mat4 light_obj_matrix = glm::mat4(1.0f);
         glm::mat4 transform_matrix = glm::mat4(1.0f);
 
-        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X
-        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y
-        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z
-
-        pointLight.lightPos = transform_matrix * glm::vec4(3.0f, 2.0f, 0.0f, 1.0f);
+        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X - Axis Rotation
+        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y - Axis Rotation
+        transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z - Axis Rotation
         
-        light_obj_matrix = glm::translate(light_obj_matrix, pointLight.lightPos);
+        light_obj_matrix = glm::translate(light_obj_matrix, pointLight.lightPos); //Translate the light rotated matrix
 
         float c_scale_x, c_scale_y, c_scale_z;
         c_scale_x = c_scale_y = c_scale_z = 0.25f;
-        light_obj_matrix = glm::scale(light_obj_matrix, glm::vec3(c_scale_x, c_scale_y, c_scale_z));
+        light_obj_matrix = glm::scale(light_obj_matrix, glm::vec3(c_scale_x, c_scale_y, c_scale_z)); // Provide the necessary scale
+
+        pointLight.lightPos = transform_matrix * glm::vec4(3.0f, 2.0f, 0.0f, 1.0f); // Save the position for lightPos for later - to synchronize with the position of the light box object
                         
 
+        /************ MODEL OBJ MATRIX ************/
+        /* Base transformation matrix */
+        glm::mat4 model_matrix = glm::mat4(1.0);
 
+        /* POSITIONS */
+        model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, 0.0f)); 
 
+        /* SCALING */
+        float l_scale_x, l_scale_y, l_scale_z;
+        l_scale_x = l_scale_y = l_scale_z = 0.003f;
+        model_matrix = glm::scale(model_matrix, glm::vec3(l_scale_x, l_scale_y, l_scale_z));
 
-
-
+        model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X - Axis Rotation
+        model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y - Axis Rotation
+        model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z - Axis Rotation
 
 
 
@@ -712,6 +747,8 @@ int main(void)
         glUniform3fv(pointSpecColorLoc, 1, glm::value_ptr(pointLight.specColor));
         unsigned int pointSpecPhongLoc = glGetUniformLocation(shaderProgram, "pointSpecPhong");       // Specular Phong
         glUniform1f(pointSpecPhongLoc, pointLight.specPhong);
+
+
 
 
         
