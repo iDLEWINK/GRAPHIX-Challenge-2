@@ -4,7 +4,6 @@
 class PerspectiveCamera : public MyCamera 
 {
 	private:
-		glm::mat4 projection_matrix;
 		float aspectRatio, lastX, lastY, sensitivity;
 
 	public:	
@@ -16,8 +15,11 @@ class PerspectiveCamera : public MyCamera
 			lastY = screenHeight / 2.0;
 			this->sensitivity = sensitivity;
 
+			
 			/* Default Settings to initialize the projection matrix */
-			projection_matrix = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+			glm::mat4 projection_matrix = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+			/* Set projection_matrix of parent */
+			MyCamera::setProjectionMatrix(projection_matrix);
 		}
 
 		/* OVERLOAD (Default aspect ratio as per the values passed in the constructor)
@@ -26,7 +28,8 @@ class PerspectiveCamera : public MyCamera
 			far - Z Far
 		*/
 		void setProjectionMatrix(float fov, float near, float far) {			
-			projection_matrix = glm::perspective(glm::radians(fov), aspectRatio, near, far);
+			glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), aspectRatio, near, far);
+			MyCamera::setProjectionMatrix(projection_matrix);
 		}
 
 		/* OVERLOAD (Includes an aspect ratio among the arguments; Forces a new aspect ratio)
@@ -36,11 +39,12 @@ class PerspectiveCamera : public MyCamera
 			far - Z Far
 		*/
 		void setProjectionMatrix(float fov, float near, float far, float ratio) {
-			projection_matrix = glm::perspective(glm::radians(fov), ratio, near, far);
+			glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), ratio, near, far);
+			MyCamera::setProjectionMatrix(projection_matrix);
 		}
 
 		glm::mat4 getProjectionMatrix() {
-			return projection_matrix;
+			return MyCamera::getProjectionMatrix();
 		}
 
 		void setLastX(float lastX) {

@@ -6,7 +6,7 @@
 class MyCamera
 {	private:
 		glm::vec3 cameraPos, cameraCenter, WorldUp;
-		glm::mat4 viewMatrix;
+		glm::mat4 viewMatrix, projectionMatrix;
 		float yaw, pitch;
 		
 		void updateViewMatrix() {
@@ -80,6 +80,14 @@ class MyCamera
 		glm::mat4 getViewMatrix() {
 			updateViewMatrix();
 			return viewMatrix;
+		}
+
+		void setProjectionMatrix(glm::mat4 projectionMatrix) {
+			this->projectionMatrix = projectionMatrix;
+		}
+
+		glm::mat4 getProjectionMatrix() {
+			return projectionMatrix;
 		}
 };
 

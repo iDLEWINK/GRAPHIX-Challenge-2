@@ -41,6 +41,9 @@ float sensitivity = 2.0f;
 bool isLight = false;
 glm::vec3 control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
 
+int cameraType = 1;
+
+
 /* KEYS FEEDBACK */
 void Key_Callback(GLFWwindow* window,
     int key,
@@ -136,6 +139,16 @@ void Key_Callback(GLFWwindow* window,
             control_rgb = glm::vec3(0.47f, 1.0f, 0.37f);
         else 
             control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
+    }
+
+    /* SWITCH BETWEEN CAMERA TYPES */
+    // PERSPECTIVE CAMERA
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+        cameraType = 1;
+    }
+    // ORTHOGRAPHIC CAMERA
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+        cameraType = 2;
     }
 
     //std::cout << "x: " << light_rot_x << " y: " << light_rot_y << " z: " << light_rot_z << "\n";
@@ -442,7 +455,7 @@ int main(void)
 
 
 
-    /* CAMERA */
+    /********** CAMERA **********/
     /* PERSPECTIVE CAMERA */
     PerspectiveCamera perspectiveCamera(
         glm::vec3(0.0f, 0.0f, 10.0f),   // Camera Position
@@ -472,29 +485,13 @@ int main(void)
     );
 
     orthoCamera.setProjectionMatrix(
-        -10.0f, 10.0f,  // Xmin, Xmax
-        -10.0f, 10.0f,  // Ymin, Ymax
-        -10.0f, 10.0f   // Zmin, Zmax
+        -15.0f, 15.0f,  // Xmin, Xmax
+        -15.0f, 15.0f,  // Ymin, Ymax
+        -15.0f, 15.0f   // Zmin, Zmax
     );
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /* LIGHTING */
+    /********** LIGHTING **********/
     /* POINT LIGHT */
     PointLight pointLight(
         glm::vec3(3.0f, 2.0f, 0.0f),       // Light Position - Position of light origin (X, Y, Z)
@@ -540,48 +537,42 @@ int main(void)
 
 
 
-
-
-
-
-
-
     glm::mat4 projection_matrix, view_matrix;
     glm::vec3 cameraPos;
-    GLuint shaderProgram;
-
+    GLuint shaderProgram;    
     unsigned int projectionLoc, viewLoc, transformationLoc;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);              
-        
-        
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);                              
 
         /* USE SHADER 0 - LIT OBJECT SHADER */        
         shaderProgram = shaderPrograms[0];
         glUseProgram(shaderProgram);
 
-
-
-
-
-
-
-
-
-        /* VARIABLES FOR CAMERA */
-        projection_matrix = perspectiveCamera.getProjectionMatrix();
-        view_matrix = perspectiveCamera.getViewMatrix();
-        cameraPos = perspectiveCamera.getCameraPos();
+        /* SET CAMERA TYPE - OBTAIN THE CORRECT VARIABLES FOR THE CAMERA
+            1 - PERSPECTIVE
+            2 - ORTHO
+        */
+        switch (cameraType) {
+            case 1:
+                projection_matrix = perspectiveCamera.getProjectionMatrix();
+                view_matrix = perspectiveCamera.getViewMatrix();
+                cameraPos = perspectiveCamera.getCameraPos();
+                break;
+            case 2:
+                projection_matrix = orthoCamera.getProjectionMatrix();
+                view_matrix = orthoCamera.getViewMatrix();
+                cameraPos = orthoCamera.getCameraPos();
+                break;
+        }                        
 
         projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
         viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
-
 
         /* VARIABLES FOR OBJECT POSITION, ROTATION, SCALE - (TO BE USED LATER) */
         transformationLoc = glGetUniformLocation(shaderProgram, "transform"); // transform is the variable from sample.vert
@@ -633,7 +624,6 @@ int main(void)
 
         /* VARIABLES FOR LIGHTING */
         /************ DIRECTIONAL LIGHT ************/
-
         /*
             - SINGLE CALL TO SET THE SHADER PROGRAM
             - LOCS TO PRIVATE VARIABLES (CALL ONCE ONLY)
