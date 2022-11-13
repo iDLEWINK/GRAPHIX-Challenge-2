@@ -1,22 +1,27 @@
 #include "MyCamera.h"
 #pragma once
 
+/* Perspective camera derived class by inheriting base class MyCamera */
 class PerspectiveCamera : public MyCamera 
 {
 	private:
 		float aspectRatio, distance;
 	public:	
+		/* Perspective camera constructor */
 		PerspectiveCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float screenWidth, float screenHeight)
 			: MyCamera(cameraPos, cameraCenter, WorldUp)		
 		{
-			aspectRatio = screenWidth / screenHeight;								
-			distance = cameraPos.z; // Z is the original distance position of the camera from the center; Initialize Camera Movement Variable
+			/* Compute for the aspect ratio for computing for perspective projection matrix */
+			aspectRatio = screenWidth / screenHeight;		
+			/* Z is the original distance position of the camera from the center; Initialize Camera Movement Variable */
+			distance = cameraPos.z; 
 						
-			/* Set projection_matrix of parent */
+			/* Set the value of the projection_matrix attribute of MyCamera base class */
 			/* Default settings to initialize the perspective projection matrix */
 			MyCamera::setProjectionMatrix(glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f));
 		}
 		
+		/* Updates the yaw and pitch based upon the current offsets and updates the camera position */
 		void updateMouse(float xoffset, float yoffset) {
 			float yaw = MyCamera::getYaw();
 			float pitch = MyCamera::getPitch();
@@ -40,17 +45,18 @@ class PerspectiveCamera : public MyCamera
 			*/
 			MyCamera::setYaw(yaw);
 			MyCamera::setPitch(pitch);
-
+			/* Update the camera position with respect to the multiplier (distance in this case) */
 			MyCamera::updateCameraPos(distance);
 		}
 
+		/* Perspective camera projection matrix getter and setter */
 		/* OVERLOAD (Default aspect ratio as per the values passed in the constructor)
-			fov - FOV in 
+			fov - FOV in degrees
 			near - Z Near
 			far - Z Far
 		*/
 		void setProjectionMatrix(float fov, float near, float far) {			
-			/* Set projection_matrix of parent */
+			/* Set the value of the projection_matrix attribute of MyCamera base class */
 			MyCamera::setProjectionMatrix(glm::perspective(glm::radians(fov), aspectRatio, near, far));
 		}
 
@@ -61,7 +67,7 @@ class PerspectiveCamera : public MyCamera
 			far - Z Far
 		*/
 		void setProjectionMatrix(float fov, float near, float far, float ratio) {
-			/* Set projection_matrix of parent */
+			/* Set the value of the projection_matrix attribute of MyCamera base class */
 			MyCamera::setProjectionMatrix(glm::perspective(glm::radians(fov), ratio, near, far));
 		}
 
