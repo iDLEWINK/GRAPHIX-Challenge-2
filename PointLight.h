@@ -10,19 +10,14 @@ class PointLight : public Light
 		float linear;
 		float quadratic;
 
-		PointLight(glm::vec3 lightPos, glm::vec3 lightColor, float lightStr, glm::vec3 ambientColor, float ambientStr, glm::vec3 specColor, float specStr, float specPhong, float constant, float linear, float quadratic)
+		PointLight(glm::vec3 lightPos, glm::vec3 lightColor, float lightStr, glm::vec3 ambientColor, float ambientStr, glm::vec3 specColor, float specStr, float specPhong)
 			: Light(lightColor, lightStr, ambientColor, ambientStr, specColor, specStr, specPhong) 
 		{
 			this->lightPos = lightPos;
-			this->constant = constant;
-			this->linear = linear;
-			this->quadratic = quadratic;
-		}
-
-		void updateIntensity(float lightStr) {
-			this->lightStr = lightStr;
-			this->linear += 0.01 * lightStr;
-			this->quadratic += 0.001 * lightStr;
+			/* DEFAULT RECOMMENDED VALUES FOR ATTENUATION; UNLIKELY TO CHANGE */
+			this->constant = 1.0f;		// Constant value for attenuation
+			this->linear = 0.35f;		// Linear value for attenuation
+			this->quadratic = 0.44f;	// Quadratic value for attenuation
 		}
 };
 

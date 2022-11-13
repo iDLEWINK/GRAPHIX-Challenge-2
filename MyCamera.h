@@ -10,8 +10,6 @@ class MyCamera
 		float yaw, pitch;
 		
 		void updateViewMatrix() {
-			//viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraCenter, WorldUp);
-			
 			glm::mat4 cameraPosMatrix = glm::translate(glm::mat4(1.0f), cameraPos * -1.0f);
 
 			// Three camera vectors 

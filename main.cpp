@@ -562,10 +562,7 @@ int main(void)
         0.4f,                       // Ambient Strength - Intensity of reflected or ambient light
         glm::vec3(1.0f, 1.0f, 1.0f),   // Specular Color - RGB lighting of specular light
         1.0f,                       // Specular Strength - intensity of specular light
-        16.0f,                      // Specular Phong - concentration of specular light
-        1.0f,                       // Constant Value for Attenuation
-        0.35f,                      // Linear Value for Attenuation
-        0.44f                       // Quadratic Value for Attenuation
+        16.0f                      // Specular Phong - concentration of specular light
     );
     
     /* DIRECTIONAL LIGHT (4, 11, -3) */
@@ -627,8 +624,6 @@ int main(void)
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
 
 
-
-
         /* VARIABLES FOR OBJECT POSITION, ROTATION, SCALE - (TO BE USED LATER) */
         transformationLoc = glGetUniformLocation(shaderProgram, "transform"); // transform is the variable from sample.vert
         /* VARIABLES FOR TEXTURE*/
@@ -679,7 +674,6 @@ int main(void)
 
         /* VARIABLES FOR LIGHTING */
         /************ DIRECTIONAL LIGHT ************/
-
         /* SET CONTROL OVER DIRECTIONAL LIGHT STRENGTH */
         if (isDLightChanged) {
             /* MAX FUNCTION IN ORDER TO PREVENT MODIFICATION OF LIGHT INTENSITY TO GO TO NEGATIVE VALUES */
@@ -710,8 +704,6 @@ int main(void)
         glUniform3fv(directionalSpecColorLoc, 1, glm::value_ptr(directionalLight.specColor));
         unsigned int directionalSpecPhongLoc = glGetUniformLocation(shaderProgram, "directionalSpecPhong");       // Specular Phong
         glUniform1f(directionalSpecPhongLoc, directionalLight.specPhong);
-
-
 
 
         /************ POINT LIGHT ************/
