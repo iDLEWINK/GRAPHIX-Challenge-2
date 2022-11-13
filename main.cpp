@@ -241,7 +241,7 @@ int main(void)
         return -1;
     
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(screenWidth, screenHeight, "Josh Aaron Khyle S. Uson", NULL, NULL);
+    window = glfwCreateWindow(screenWidth, screenHeight, "PC02-Uson_JoshAaronKhyle", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
