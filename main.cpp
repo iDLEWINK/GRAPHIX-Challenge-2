@@ -31,8 +31,8 @@ float screenWidth = 750.f;
 float screenHeight = 750.f;
 
 /* LIGHT INTENSITY CONTROL */
-float p_light_sens = 1.0f;
-float d_light_sens = 0.1f;
+float p_light_sens = 2.0f;
+float d_light_sens = 0.025f;
 float d_light_intensity = 1.0f;
 float p_light_intensity = 1.0f;
 
@@ -63,6 +63,11 @@ float lastY = screenHeight / 2.0;
 float xoffset = 0;
 float yoffset = 0;
 
+/* SIGNAL FLAGS */
+bool isOffsetChanged = false;
+bool isDLightChanged = false;
+bool isPLightChanged = false;
+
 /* MOUSE FEEDBACK */
 void Mouse_Callback(GLFWwindow* window, double xpos, double ypos) {
     /* Circumvent the abrupt initial jump by using a sentinel value in recording first input as last */
@@ -79,6 +84,8 @@ void Mouse_Callback(GLFWwindow* window, double xpos, double ypos) {
     /* Store the last x,y mouse position */
     lastX = xpos;
     lastY = ypos;
+
+    isOffsetChanged = true;
 }
 
 /* KEYS FEEDBACK */
@@ -91,18 +98,22 @@ void Key_Callback(GLFWwindow* window,
     /* LIGHT INTENSITY CONTROL */
     /* DIRECTIONAL LIGHT */
     if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        d_light_intensity -= d_light_sens;
+        d_light_intensity = -d_light_sens;
+        isDLightChanged = true;
     }
     if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        d_light_intensity += d_light_sens;
+        d_light_intensity = d_light_sens;
+        isDLightChanged = true;
     }
     /* POINT LIGHT */
-    if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        p_light_intensity += (-p_light_sens); // Quadratic and Linear are in the denominator => Lower value = Stronger
-    }
     if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        p_light_intensity -= (-p_light_sens); // Quadratic and Linear are in the denominator => Higher value = Weaker
+        p_light_intensity = p_light_sens; // Quadratic and Linear are in the denominator => Higher value = Weaker
+        isPLightChanged = true;
     }
+    if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        p_light_intensity = -p_light_sens; // Quadratic and Linear are in the denominator => Lower value = Stronger
+        isPLightChanged = true;
+    }    
 
     /* MODEL MOVEMENT KEYS */
     /* Y - AXIS ROTATION */
@@ -575,20 +586,9 @@ int main(void)
 
 
 
-
-
-
-
-
-
-
    
 
     
-    
-    /* INITIALIZATION FOR CAMERA MOVEMENT */
-    float lastXOffset = xoffset;
-    float lastYOffset = yoffset;
 
     /* INITIALIZATION FOR CAMERA VARIABLES, LOCS, AND SHADER TEMP VARIABLES*/
     glm::mat4 projection_matrix, view_matrix;
@@ -617,10 +617,9 @@ int main(void)
                 cameraPos = perspectiveCamera.getCameraPos();
 
                 /* UPDATE MOVEMENT OF MOUSE UPON VALUE CHANGE */
-                if (lastXOffset != xoffset || lastYOffset != yoffset) {
-                    lastXOffset = xoffset;
-                    lastYOffset = yoffset;
+                if (isOffsetChanged) {
                     perspectiveCamera.updateMouse(xoffset, yoffset);
+                    isOffsetChanged = false;
                 }                                
                 break;
             case 2:
@@ -688,15 +687,12 @@ int main(void)
 
         /* VARIABLES FOR LIGHTING */
         /************ DIRECTIONAL LIGHT ************/
-        /*
-            - SINGLE CALL TO SET THE SHADER PROGRAM
-            - LOCS TO PRIVATE VARIABLES (CALL ONCE ONLY)
-            - GLUNIFORM SET TO CALL WHEN SAY UPDATE USE LIGHT
-            - NO NEED TO TURN VARIABLES TO PRIVATE YET; WE CAN DO THAT LATER
-        */
 
         /* SET CONTROL OVER DIRECTIONAL LIGHT STRENGTH */
-        directionalLight.lightStr = d_light_intensity;
+        if (isDLightChanged) {
+            directionalLight.lightStr += d_light_intensity;
+            isDLightChanged = false;
+        }        
 
         // LIGHT POSITION AND COLOR
         unsigned int directionalLightPosLoc = glGetUniformLocation(shaderProgram, "directionalLightPos");     // Light Pos
@@ -721,24 +717,16 @@ int main(void)
         glUniform1f(directionalSpecPhongLoc, directionalLight.specPhong);
 
 
-        
-
-        
-
-
-
-
-
-
-
-
 
 
         /************ POINT LIGHT ************/
-
         /* SET CONTROL OVER DIRECTIONAL LIGHT STRENGTH */
-        pointLight.linear = (p_light_intensity * 0.01f);
-        pointLight.quadratic = (p_light_intensity * 0.001f);
+        if (isPLightChanged) {
+            pointLight.linear += (p_light_intensity * 0.01f);
+            pointLight.quadratic += (p_light_intensity * 0.001f);
+            isPLightChanged = false;
+        }        
+
         /* SET CONTROL OVER POINT LIGHT RGB */
         pointLight.lightColor = control_rgb;
         pointLight.ambientColor = control_rgb;
@@ -786,27 +774,6 @@ int main(void)
         // DRAW OBJECT0 
         glBindVertexArray(VAO[0]);
         glDrawArrays(GL_TRIANGLES, 0, fullVertexData.size() / 8); // divided by 8 to get the number of vertices to draw
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         /* USE SHADER 1 - UNLIT OBJECT SHADER */
