@@ -1,4 +1,4 @@
-#version 330 core // Version number
+#version 330 core // Shader version
 
 layout(location = 0) in vec3 aPos; 
 layout(location = 1) in vec3 vertexNormal;
