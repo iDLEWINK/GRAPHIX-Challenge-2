@@ -538,7 +538,7 @@ int main(void)
     OrthoCamera orthoCamera(
         glm::vec3(0.0f, 10.0f, 0.0f),   // Camera Position
         glm::vec3(0.0f, 0.0f, 0.0f),    // Camera Center
-        glm::vec3(0.0f, 0.0f, -1.0f)   // World Up
+        glm::vec3(0.0f, 0.0f, -1.0f)    // World Up
     );
 
     orthoCamera.setProjectionMatrix(

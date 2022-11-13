@@ -9,15 +9,12 @@ class PerspectiveCamera : public MyCamera
 		PerspectiveCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float screenWidth, float screenHeight)
 			: MyCamera(cameraPos, cameraCenter, WorldUp)		
 		{
-			aspectRatio = screenWidth / screenHeight;
-
-			/* Initialize Camera Movement Variable */						
-			distance = cameraPos.z; // Z is the original distance position of the camera from the center
-			
-			/* Default Settings to initialize the projection matrix */
-			glm::mat4 projection_matrix = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+			aspectRatio = screenWidth / screenHeight;								
+			distance = cameraPos.z; // Z is the original distance position of the camera from the center; Initialize Camera Movement Variable
+						
 			/* Set projection_matrix of parent */
-			MyCamera::setProjectionMatrix(projection_matrix);
+			/* Default settings to initialize the perspective projection matrix */
+			MyCamera::setProjectionMatrix(glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f));
 		}
 		
 		void updateMouse(float xoffset, float yoffset) {
@@ -47,16 +44,14 @@ class PerspectiveCamera : public MyCamera
 			MyCamera::updateCameraPos(distance);
 		}
 
-
-
 		/* OVERLOAD (Default aspect ratio as per the values passed in the constructor)
 			fov - FOV in 
 			near - Z Near
 			far - Z Far
 		*/
 		void setProjectionMatrix(float fov, float near, float far) {			
-			glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), aspectRatio, near, far);
-			MyCamera::setProjectionMatrix(projection_matrix);
+			/* Set projection_matrix of parent */
+			MyCamera::setProjectionMatrix(glm::perspective(glm::radians(fov), aspectRatio, near, far));
 		}
 
 		/* OVERLOAD (Includes an aspect ratio among the arguments; Forces a new aspect ratio)
@@ -66,8 +61,8 @@ class PerspectiveCamera : public MyCamera
 			far - Z Far
 		*/
 		void setProjectionMatrix(float fov, float near, float far, float ratio) {
-			glm::mat4 projection_matrix = glm::perspective(glm::radians(fov), ratio, near, far);
-			MyCamera::setProjectionMatrix(projection_matrix);
+			/* Set projection_matrix of parent */
+			MyCamera::setProjectionMatrix(glm::perspective(glm::radians(fov), ratio, near, far));
 		}
 
 		glm::mat4 getProjectionMatrix() {
