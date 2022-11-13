@@ -46,7 +46,7 @@ float model_rot_x = 0;
 float model_rot_y = 0;
 float model_rot_z = 0;
 
-float obj_sens = 2.0f;
+float obj_sens = 4.0f;
 
 bool isLightControl = false;
 glm::vec3 control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -567,10 +567,10 @@ int main(void)
         glm::vec3(1.0f, 1.0f, 1.0f), // Light Color - RGB lighting of light source
         1.0f,                   // Light Strength - intensity of diffuse light    
         glm::vec3(1.0f, 1.0f, 1.0f), // Ambient Color - RGB lighting of reflected or ambient light
-        0.5f,                   // Ambient Strength - Intensity of reflected or ambient light
+        0.4f,                   // Ambient Strength - Intensity of reflected or ambient light
         glm::vec3(1.0f, 1.0f, 1.0f), // Specular Color - RGB lighting of specular light
         1.0f,                  // Specular Strength - intensity of specular light
-        50.0f                  // Specular Phong - concentration of specular light
+        30.0f                  // Specular Phong - concentration of specular light
     );
 
     

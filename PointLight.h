@@ -14,7 +14,12 @@ class PointLight : public Light
 			: Light(lightColor, lightStr, ambientColor, ambientStr, specColor, specStr, specPhong) 
 		{
 			this->lightPos = lightPos;
-			/* DEFAULT RECOMMENDED VALUES FOR ATTENUATION; UNLIKELY TO CHANGE */
+			/* 
+				NOTE: Values are determined from a recommended light combinations table from Ogre3D - www.ogre3d.org/tikiwiki/tiki-index.php?page=-Point+Light+Attenuation
+				float constant - Ensures the denominator never gets smaller than 1
+				float linear - Reduces the intensity in in a linear fashion
+				float quadratic - Quadratic decrease of light source intensity
+			*/
 			this->constant = 1.0f;		// Constant value for attenuation
 			this->linear = 0.35f;		// Linear value for attenuation
 			this->quadratic = 0.44f;	// Quadratic value for attenuation
