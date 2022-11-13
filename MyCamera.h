@@ -3,6 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #pragma once
 
+/* Base Camera Class */
 class MyCamera
 {	private:
 		glm::vec3 cameraPos, cameraCenter, WorldUp;
