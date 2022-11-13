@@ -48,7 +48,7 @@ float model_rot_z = 0;
 
 float obj_sens = 2.0f;
 
-bool isLight = false;
+bool isLightControl = false;
 glm::vec3 control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
 
 /* CAMERA MOVEMENT */
@@ -118,7 +118,7 @@ void Key_Callback(GLFWwindow* window,
     /* MODEL MOVEMENT KEYS */
     /* Y - AXIS ROTATION */
     if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
-        if(isLight) {
+        if(isLightControl) {
             light_rot_y -= obj_sens; // Rotate light object position to the (negative) direction
             if (light_rot_y == -360.0f)
                 light_rot_y = 0;
@@ -130,7 +130,7 @@ void Key_Callback(GLFWwindow* window,
         }
     }
     if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
-        if(isLight) {
+        if(isLightControl) {
             light_rot_y += obj_sens; // Rotate light object position to the (positive) direction
             if (light_rot_y == 360.0f)
                 light_rot_y = 0;
@@ -144,7 +144,7 @@ void Key_Callback(GLFWwindow* window,
 
     /* X - AXIS ROTATION */
     if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
-        if(isLight) {
+        if(isLightControl) {
             light_rot_x -= obj_sens; // Rotate light object position to the (negative) direction
             if (light_rot_x == -360.0f)
                 light_rot_x = 0;
@@ -156,7 +156,7 @@ void Key_Callback(GLFWwindow* window,
         }
     }
     if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
-        if(isLight) {
+        if(isLightControl) {
             light_rot_x += obj_sens; // Rotate light object position to the (positive) direction
             if (light_rot_x == 360.0f)
                 light_rot_x = 0;
@@ -170,7 +170,7 @@ void Key_Callback(GLFWwindow* window,
 
     /* Z - AXIS ROTATION */
     if (key == GLFW_KEY_E && action == GLFW_REPEAT) {
-        if(isLight) {
+        if(isLightControl) {
             light_rot_z -= obj_sens; // Rotate light object position to the (negative) direction
             if (light_rot_z == -360.0f)
                 light_rot_z = 0;
@@ -182,7 +182,7 @@ void Key_Callback(GLFWwindow* window,
         }
     }
     if (key == GLFW_KEY_Q && action == GLFW_REPEAT) {
-        if(isLight) {
+        if(isLightControl) {
             light_rot_z += obj_sens; // Rotate light object position to the (positive) direction
             if (light_rot_z == 360.0f)
                 light_rot_z = 0;
@@ -197,9 +197,9 @@ void Key_Callback(GLFWwindow* window,
     /* SWITCH BETWEEN MODEL OBJECT AND LIGHT OBJECT */
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         /* Switches the flag for the state */
-        isLight = !isLight;
+        isLightControl = !isLightControl;
         /* CHANGE COLOR BEHAVIOR */
-        if (isLight)
+        if (isLightControl)
             control_rgb = glm::vec3(0.47f, 1.0f, 0.37f);
         else 
             control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -763,7 +763,6 @@ int main(void)
         glUniform1f(pointLinearLoc, pointLight.linear);
         unsigned int pointQuadraticLoc = glGetUniformLocation(shaderProgram, "quadratic");       // Quadratic
         glUniform1f(pointQuadraticLoc, pointLight.quadratic);
-
 
         
         /* MODEL OBJECT ITEM - VAO0 and TEXTURE0 */
