@@ -1,3 +1,10 @@
+/*
+    MODEL: TROUBLEMAKER MUSHROOM
+    BY: ti.ego
+    SOURCE: https://sketchfab.com/3d-models/troublemaker-mushroom-ed2005ee49e7419e9c91cfe1d1c45dc8
+    ORIGINAL SOURCE: DARK SOULS
+*/
+
 /*The order matters. glad should be above GLFW*/
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
