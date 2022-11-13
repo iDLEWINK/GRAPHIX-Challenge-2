@@ -31,10 +31,10 @@ float screenWidth = 750.f;
 float screenHeight = 750.f;
 
 /* LIGHT INTENSITY CONTROL */
-float p_light_sens = 2.0f;
+float p_light_sens = 0.025f;
 float d_light_sens = 0.025f;
-float d_light_intensity = 1.0f;
-float p_light_intensity = 1.0f;
+float d_light_intensity = 1.0f; // DEFAULT
+float p_light_intensity = 1.0f; // DEFAULT
 
 /* LIGHT OBJECT ROTATION */
 float light_rot_x = 0;
@@ -107,11 +107,11 @@ void Key_Callback(GLFWwindow* window,
     }
     /* POINT LIGHT */
     if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        p_light_intensity = p_light_sens; // Quadratic and Linear are in the denominator => Higher value = Weaker
+        p_light_intensity = -p_light_sens; 
         isPLightChanged = true;
     }
     if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        p_light_intensity = -p_light_sens; // Quadratic and Linear are in the denominator => Lower value = Stronger
+        p_light_intensity = p_light_sens;
         isPLightChanged = true;
     }    
 
@@ -249,16 +249,12 @@ int main(void)
     glfwSetKeyCallback(window, Key_Callback);
     glfwSetCursorPosCallback(window, Mouse_Callback);
 
-    /* OPTIONAL: Aesthetic purposes for hiding the cursor and restraining it inside the application */
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
     /* Enable Depth Test to fix layer ordering of rendering */
     glEnable(GL_DEPTH_TEST);
     /* Set Viewport */
     glViewport(0, 0, screenWidth, screenHeight);
 
-
-    /* TEXTURES HERE */
+    /* TEXTURES SETUP START */
     stbi_set_flip_vertically_on_load(true); // For image flip; Loads it in an upright manner.    
 
     GLuint texture; // Create list of textures as variable
@@ -297,9 +293,10 @@ int main(void)
     stbi_image_free(tex_bytes); // Free from memory   
     /* TEXTURE SETUP END */
 
+
     /* Main Object + Point & Directional Light */
     /* Light Object + Unlit */
-    /* SHADER PROGRAM CREATION */
+    /* SHADER PROGRAM CREATION START */
     GLuint shaderPrograms[2];
     const char* frag_paths[2] = { "Shaders/object.frag", "Shaders/unlit.frag" };
     const char* vert_paths[2] = { "Shaders/object.vert", "Shaders/unlit.vert" };
@@ -334,7 +331,7 @@ int main(void)
         shaderPrograms[i] = shaderProgram;
         glLinkProgram(shaderPrograms[i]);
     }
-
+    /* SHADER PROGRAM CREATION END */
 
     /* OBJECT LOADING + SETUP MESH START */
     /*Initialized list of VAOs and VBOs has an ID of unsigned integer - will be called by glGenVertexArrays*/
@@ -566,9 +563,9 @@ int main(void)
         glm::vec3(1.0f, 1.0f, 1.0f),   // Specular Color - RGB lighting of specular light
         1.0f,                       // Specular Strength - intensity of specular light
         16.0f,                      // Specular Phong - concentration of specular light
-        1.0f,                       // DEFAULT: Constant Value for Attenuation
-        0.35f,                      // DEFAULT: Linear Value for Attenuation
-        0.44f                       // DEFAULT: Quadratic Value for Attenuation
+        1.0f,                       // Constant Value for Attenuation
+        0.35f,                      // Linear Value for Attenuation
+        0.44f                       // Quadratic Value for Attenuation
     );
     
     /* DIRECTIONAL LIGHT (4, 11, -3) */
@@ -582,11 +579,6 @@ int main(void)
         1.0f,                  // Specular Strength - intensity of specular light
         50.0f                  // Specular Phong - concentration of specular light
     );
-
-
-
-
-   
 
     
 
@@ -690,7 +682,10 @@ int main(void)
 
         /* SET CONTROL OVER DIRECTIONAL LIGHT STRENGTH */
         if (isDLightChanged) {
-            directionalLight.lightStr += d_light_intensity;
+            /* MAX FUNCTION IN ORDER TO PREVENT MODIFICATION OF LIGHT INTENSITY TO GO TO NEGATIVE VALUES */
+            directionalLight.lightStr = std::max(d_light_intensity + directionalLight.lightStr, 0.0f);
+            directionalLight.ambientStr = std::max(d_light_intensity + directionalLight.ambientStr, 0.0f);
+            directionalLight.specStr = std::max(d_light_intensity + directionalLight.specStr, 0.0f);
             isDLightChanged = false;
         }        
 
@@ -722,8 +717,10 @@ int main(void)
         /************ POINT LIGHT ************/
         /* SET CONTROL OVER DIRECTIONAL LIGHT STRENGTH */
         if (isPLightChanged) {
-            pointLight.linear += (p_light_intensity * 0.01f);
-            pointLight.quadratic += (p_light_intensity * 0.001f);
+            /* MAX FUNCTION IN ORDER TO PREVENT MODIFICATION OF LIGHT INTENSITY TO GO TO NEGATIVE VALUES */
+            pointLight.lightStr = std::max(p_light_intensity + pointLight.lightStr, 0.0f);
+            pointLight.ambientStr = std::max(p_light_intensity + pointLight.ambientStr, 0.0f);
+            pointLight.specStr = std::max(p_light_intensity + pointLight.specStr, 0.0f);
             isPLightChanged = false;
         }        
 
