@@ -6,8 +6,8 @@ class PerspectiveCamera : public MyCamera
 	private:
 		float aspectRatio, distance;
 	public:	
-		PerspectiveCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch, float screenWidth, float screenHeight)
-			: MyCamera(cameraPos, cameraCenter, WorldUp, yaw, pitch)		
+		PerspectiveCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float screenWidth, float screenHeight)
+			: MyCamera(cameraPos, cameraCenter, WorldUp)		
 		{
 			aspectRatio = screenWidth / screenHeight;
 

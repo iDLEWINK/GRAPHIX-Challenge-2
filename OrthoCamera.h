@@ -4,13 +4,13 @@
 class OrthoCamera : public MyCamera
 {
 	public:
-		OrthoCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch)
-			: MyCamera(cameraPos, cameraCenter, WorldUp, yaw, pitch)
+		OrthoCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp)
+			: MyCamera(cameraPos, cameraCenter, WorldUp)
 		{
-			/* Default Settings to initialize the ortographic projection matrix; CHANGE THIS TO ARGUMENT ACCEPT */
-			glm::mat4 projection_matrix = glm::ortho(-1.0f, 1.0f,
-											-1.0f, 1.0f,
-											-2.0f, 2.0f); 
+			/* Default Settings to initialize the ortographic projection matrix */
+			glm::mat4 projection_matrix = glm::ortho(-15.0f, 15.0f,
+													-15.0f, 15.0f,
+													-15.0f, 15.0f); 
 			/* Set projection_matrix of parent */
 			MyCamera::setProjectionMatrix(projection_matrix);
 		}

@@ -523,8 +523,6 @@ int main(void)
         glm::vec3(0.0f, 0.0f, 10.0f),   // Camera Position
         glm::vec3(0.0f, 0.0f, 0.0f),    // Camera Center
         glm::vec3(0.0f, 1.0f, 0.0f),    // World Up
-        90.0f,                          // Yaw
-        0.0f,                           // Pitch
         screenWidth,                    // Screen Width
         screenHeight                    // Screen Height
     );
@@ -540,9 +538,7 @@ int main(void)
     OrthoCamera orthoCamera(
         glm::vec3(0.0f, 10.0f, 0.0f),   // Camera Position
         glm::vec3(0.0f, 0.0f, 0.0f),    // Camera Center
-        glm::vec3(0.0f, 0.0f, -1.0f),   // World Up
-        90.0f,                          // Pitch
-        0.0f                            // Yaw
+        glm::vec3(0.0f, 0.0f, -1.0f)   // World Up
     );
 
     orthoCamera.setProjectionMatrix(

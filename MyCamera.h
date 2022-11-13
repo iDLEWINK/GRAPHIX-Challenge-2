@@ -38,12 +38,12 @@ class MyCamera
 		}		
 
 	public:
-		MyCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp, float yaw, float pitch) {
+		MyCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp) {
 			this->cameraPos = cameraPos;
 			this->cameraCenter = cameraCenter;
 			this->WorldUp = WorldUp;
-			this->yaw = yaw;
-			this->pitch = pitch;						
+			this->yaw = 90.0f;		// Default value for yaw
+			this->pitch = 0.0f;		// Default value for pitch					
 
 			updateViewMatrix();
 		}
