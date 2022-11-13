@@ -9,13 +9,14 @@ class MyCamera
 		glm::mat4 viewMatrix, projectionMatrix;
 		float yaw, pitch;
 		
+		/* Compute for the view matrix and assign to the private attribute */
 		void updateViewMatrix() {
 			glm::mat4 cameraPosMatrix = glm::translate(glm::mat4(1.0f), cameraPos * -1.0f);
 
-			// Three camera vectors 
+			/* Three camera vectors */
 			glm::vec3 F = cameraCenter - cameraPos;
 			F = glm::normalize(F);
-			glm::vec3 R = glm::cross(F, WorldUp); // Normalized already so we don't need to normalize anymore. But we can normalize to it again to make sure.
+			glm::vec3 R = glm::cross(F, WorldUp); 
 			R = glm::normalize(R);
 			glm::vec3 U = glm::cross(R, F);
 			U = glm::normalize(U);
@@ -38,6 +39,7 @@ class MyCamera
 		}		
 
 	public:
+		/* Constructor - takes camera position, camera center, and world up */
 		MyCamera(glm::vec3 cameraPos, glm::vec3 cameraCenter, glm::vec3 WorldUp) {
 			this->cameraPos = cameraPos;
 			this->cameraCenter = cameraCenter;
@@ -45,9 +47,11 @@ class MyCamera
 			this->yaw = 90.0f;		// Default value for yaw
 			this->pitch = 0.0f;		// Default value for pitch					
 
+			/* Immediately compute for the view matrix and save it */
 			updateViewMatrix();
 		}
 
+		/* Updates the camera position with respect to a multiplier (distance) */
 		void updateCameraPos(float multiplier) {
 			/*
 				Set the updated direction values (Pythagorean Theorem)
@@ -59,7 +63,7 @@ class MyCamera
 			cameraPos.z = multiplier * sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 		}
 
-		/* PITCH */
+		/* Pitch getter and setter */
 		float getPitch() {
 			return pitch;
 		}
@@ -68,7 +72,7 @@ class MyCamera
 			this->pitch = pitch;
 		}
 
-		/* YAW */
+		/* Yaw getter and setter */
 		float getYaw() {
 			return yaw;
 		}
@@ -77,26 +81,48 @@ class MyCamera
 			this->yaw = yaw;
 		}		
 
-		/* CAMERA POS */
-		void setCameraPos(glm::vec3 cameraPos) {
-			this->cameraPos = cameraPos;
-		}
-
+		/* Camera position getter and setter */
 		glm::vec3 getCameraPos() {
 			return cameraPos;
 		}
 
-		glm::mat4 getViewMatrix() {
-			updateViewMatrix();
-			return viewMatrix;
+		void setCameraPos(glm::vec3 cameraPos) {
+			this->cameraPos = cameraPos;
+		}		
+		
+		/* Camera center getter and setter */
+		glm::vec3 getCameraCenter() {
+			return cameraCenter;
+		}
+
+		void setCameraCenter(glm::vec3 cameraCenter) {
+			this->cameraCenter = cameraCenter;
+		}
+
+		/* World Up getter and setter */
+		glm::vec3 getWorldUp() {
+			return WorldUp;
+		}
+
+		void setWorldUp(glm::vec3 WorldUp) {
+			this->WorldUp = WorldUp;
+		}
+
+		/* Projection matrix getter and setter */
+		glm::mat4 getProjectionMatrix() {
+			return projectionMatrix;
 		}
 
 		void setProjectionMatrix(glm::mat4 projectionMatrix) {
 			this->projectionMatrix = projectionMatrix;
 		}
 
-		glm::mat4 getProjectionMatrix() {
-			return projectionMatrix;
+		/* View matrix getter */
+		glm::mat4 getViewMatrix() {
+			/* Compute and update the view matrix just in case of new values */
+			updateViewMatrix();
+			return viewMatrix;
 		}
+
 };
 
