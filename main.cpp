@@ -5,19 +5,18 @@
     ORIGINAL SOURCE: DARK SOULS
 */
 
-/*The order matters. glad should be above GLFW*/
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-// For 3D
+/* tiny_obj_loader */
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
-// For string
+/* For string processing */ 
 #include <string>
 #include <iostream>
 
-// GLM Headers
+/* GLM Headers */
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -25,11 +24,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-// Camera Class
+/* Camera Class */
 #include "PerspectiveCamera.h"
 #include "OrthoCamera.h"
 
-// Light Class
+/* Light Class */
 #include "DirectionalLight.h"
 #include "PointLight.h"
 
@@ -53,8 +52,10 @@ float model_rot_x = 0;
 float model_rot_y = 0;
 float model_rot_z = 0;
 
+/* OBJECT ROTATION SENSITIVITY */
 float obj_sens = 4.0f;
 
+/* LIGHT CONTROL */
 bool isLightControl = false;
 glm::vec3 control_rgb = glm::vec3(1.0f, 1.0f, 1.0f);
 
@@ -64,6 +65,7 @@ int cameraType = 1;
 bool firstMouse = true;
 /* Controls intensity */
 float cam_sens = 0.8f;
+/* Camera movement remember last cursor location */
 float lastX = screenWidth / 2.0;
 float lastY = screenHeight / 2.0;
 /* DEFAULT SET TO 0 - CENTER */
@@ -92,6 +94,7 @@ void Mouse_Callback(GLFWwindow* window, double xpos, double ypos) {
     lastX = xpos;
     lastY = ypos;
 
+    /* Signal in case of change in offset */
     isOffsetChanged = true;
 }
 
@@ -220,18 +223,13 @@ void Key_Callback(GLFWwindow* window,
     // ORTHOGRAPHIC CAMERA
     if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
         cameraType = 2;
-    }
-    
-    //std::cout << "x: " << light_rot_x << " y: " << light_rot_y << " z: " << light_rot_z << "\n";
+    }  
     
     /* EXIT APPLICATION */
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 }
-
-
-
 
 
 int main(void)
@@ -253,61 +251,62 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     gladLoadGL();
+
+    /* Set both key_callback and mouse_callback to be active on the specified window (current application window when launched) */
     glfwSetKeyCallback(window, Key_Callback);
     glfwSetCursorPosCallback(window, Mouse_Callback);
 
     /* Enable Depth Test to fix layer ordering of rendering */
     glEnable(GL_DEPTH_TEST);
+
     /* Set Viewport */
     glViewport(0, 0, screenWidth, screenHeight);
 
-    /* TEXTURES SETUP START */
-    stbi_set_flip_vertically_on_load(true); // For image flip; Loads it in an upright manner.    
+    /* For image texture flip; Loads texture correctly in an upright manner */
+    stbi_set_flip_vertically_on_load(true); 
 
-    GLuint texture; // Create list of textures as variable
+    /***** TEXTURES SETUP START *****/     
+    GLuint texture; // Create the texture as variable
     const char* texture_path = "3D/shroom.png";
-
     int img_width, img_height, color_channels;
+
     /* Loaded texture */
-    unsigned char* tex_bytes = stbi_load(texture_path, // Texture path
-        &img_width, // Fill width
-        &img_height, // Fill height
-        &color_channels, // Number of color channels
+    unsigned char* tex_bytes = stbi_load(texture_path,  // Texture path
+        &img_width,                                     // Fill width
+        &img_height,                                    // Fill height
+        &color_channels,                                // Number of color channels
         0);
 
-    glGenTextures(1, &texture); // Generate 1 texture and assign it to texture variable
-
-    // Can have up to GL_TEXTURE60. You process succeeding textures individually if you have more than 1 on you wish to apply on an object
-    glActiveTexture(GL_TEXTURE0);
-
-    // Tell OpenGL we're modifying texture at index 0
-    glBindTexture(GL_TEXTURE_2D, texture); // Bind it for now
+    glGenTextures(1, &texture);     // Generate 1 texture and assign it to texture variable    
+    glActiveTexture(GL_TEXTURE0);   // Sets the texture unit GL_TEXTURE0 to be active and thus be the context in the subsequent calls    
+    glBindTexture(GL_TEXTURE_2D, texture); // Tell OpenGL we're modifying texture at index 0; Bind it
 
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
-        GL_RGBA, //GL_RGB = jpegs or pngs w/o alphas; GL_RGBA = pngs or images w/ alpha; some pngs does not have an alpha channel
+        GL_RGBA,            //GL_RGB = jpegs or pngs w/o alphas; GL_RGBA = pngs or images w/ alpha; some pngs does not have an alpha channel
         img_width,
         img_height,
         0,
         GL_RGBA,
-        GL_UNSIGNED_BYTE, // Type of our loaded image
-        tex_bytes // loaded texture in bytes
+        GL_UNSIGNED_BYTE,   // Type of our loaded image
+        tex_bytes           // loaded texture in bytes
     );
 
     /* Assign the loaded texture; Generate the mipmaps to the current texture */
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(tex_bytes); // Free from memory   
-    /* TEXTURE SETUP END */
+    /***** TEXTURE SETUP END *****/
 
 
-    /* Main Object + Point & Directional Light */
-    /* Light Object + Unlit */
-    /* SHADER PROGRAM CREATION START */
+    /***** SHADER PROGRAM CREATION START *****/
+    /* Shader 0 - Main Object + Point & Directional Light */
+    /* Shader 1 - Light Object + Unlit */
     GLuint shaderPrograms[2];
     const char* frag_paths[2] = { "Shaders/object.frag", "Shaders/unlit.frag" };
     const char* vert_paths[2] = { "Shaders/object.vert", "Shaders/unlit.vert" };
 
+    /* Process both shaders and create a shader program; Assign to the shaderPrograms list after */
     for (int i = 0; i < 2; i++) {
         //All of these are conversions for vert
         std::fstream vertSrc(vert_paths[i]);
@@ -338,19 +337,20 @@ int main(void)
         shaderPrograms[i] = shaderProgram;
         glLinkProgram(shaderPrograms[i]);
     }
-    /* SHADER PROGRAM CREATION END */
+    /***** SHADER PROGRAM CREATION END *****/
 
-    /* OBJECT LOADING + SETUP MESH START */
-    /*Initialized list of VAOs and VBOs has an ID of unsigned integer - will be called by glGenVertexArrays*/
+    /***** OBJECT LOADING + SETUP MESH START *****/
+    /* Initialized list of VAOs and VBOs has an ID of unsigned integer - will be called by glGenVertexArrays */
     std::string paths[2] = { "3D/shroom.obj", "3D/myCube.obj"};
     std::vector<GLfloat> fullVertexData;
     
-    // Initialize VAOs, VBOs, and EBO
+    
     /*
     VAO0 - Mushroom; Main 3D Model
     VAO1 - Square; Light Box
     */
 
+    /* Initialize VAOs, VBOs, and EBO */
     GLuint VAO[2], VBO[2], EBO;
     // Generate and assign ID to each VAO
     glGenVertexArrays(2, VAO);
@@ -369,8 +369,7 @@ int main(void)
     GLintptr normPtr;
     GLintptr uvPtr;
 
-
-    /* VAO0 - Mushroom COMPLETE */
+    /* VAO0 - Mushroom */
     success = tinyobj::LoadObj(
         &attributes,
         &shapes,
@@ -379,7 +378,8 @@ int main(void)
         &error,
         paths[0].c_str()
     );
-        
+    
+    /* Process VAO0's (Mushrooom Model) Vertices, Normals, and Texture Coords */
     for (int j = 0; j < shapes[0].mesh.indices.size(); j++) {
         tinyobj::index_t vData = shapes[0].mesh.indices[j];
         /* XYZ */
@@ -419,19 +419,19 @@ int main(void)
     /* Tell OpenGL how to interpret the array */
     /* VERTEX AttribPointer - For vertex offset */
     glVertexAttribPointer(
-        0, // Position - SPECIAL INDEX 0, 1, and 2
-        3, // X, Y, Z ( this just points to the position so we can retain 3 even with U and V )
-        GL_FLOAT, // Type of ARRAY
-        GL_FALSE, // Should we normalize this?
-        8 * sizeof(GL_FLOAT), // Changed from 3 to 8 since we now have X Y Z NX NY NZ U V
+        0,                      // Position - SPECIAL INDEX 0, 1, and 2
+        3,                      // X, Y, Z ( this just points to the position so we can retain 3 even with U and V )
+        GL_FLOAT,               // Type of ARRAY
+        GL_FALSE,               // Should we normalize this?
+        8 * sizeof(GL_FLOAT),   // Changed from 3 to 8 since we now have X Y Z NX NY NZ U V
         (void*)0
     );
 
     /* NORMALS AttribPointer - For lighting */
-    normPtr = 3 * sizeof(GLfloat); // X Y Z offset in order to reach NX NY NZ in the memory
+    normPtr = 3 * sizeof(GLfloat);  // X Y Z offset in order to reach NX NY NZ in the memory
     glVertexAttribPointer(
-        1, // NORMAL is assigned to index 1
-        3, // NX, NY, NZ
+        1,                          // NORMAL is assigned to index 1
+        3,                          // NX, NY, NZ
         GL_FLOAT,
         GL_FALSE,
         8 * sizeof(GL_FLOAT),
@@ -439,17 +439,17 @@ int main(void)
     );
 
     /* UV AttribPointer - For texture */
-    uvPtr = 6 * sizeof(GLfloat); // X Y Z NX NY NZ offset in order to reach U V in the memory
+    uvPtr = 6 * sizeof(GLfloat);    // X Y Z NX NY NZ offset in order to reach U V in the memory
     glVertexAttribPointer(
-        2, // UV assigned to index 2
-        2,  // U and V
+        2,                          // UV assigned to index 2
+        2,                          // U and V
         GL_FLOAT,
         GL_FALSE,
         8 * sizeof(GL_FLOAT),
         (void*)uvPtr
     );
 
-    // SPECIAL INDICES
+    /* SPECIAL INDICES */
     // 0 is for the Position of the vertex
     // 1 is for the Normals
     // 2 is for the Textures
@@ -479,7 +479,6 @@ int main(void)
 
     // Assigns or binds VAO - any calls after this will automatically point to VAO; Tells OpenGL we're working with that specified VAO
     glBindVertexArray(VAO[1]);
-
     // Converts VBO to an array buffer that stores our vertex position; Tells OpenGL we're working with this VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
     // Assigns data to VBO
@@ -508,20 +507,14 @@ int main(void)
         mesh_indices.data(),
         GL_STATIC_DRAW);
 
-    // SPECIAL INDICES
+    /* SPECIAL INDICES */
     // 0 is for the Position of the vertex
-    // 1 is for the Normals
-    // 2 is for the Textures
-    glEnableVertexAttribArray(0); // Position
-   
+    glEnableVertexAttribArray(0); // Position   
     // We're done modifying - bind it to 0
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // We're done modifying - bind it to 0
     glBindVertexArray(0);
-    /* OBJECT LOADING + SETUP MESH END */    
-
-
-
+    /***** OBJECT LOADING + SETUP MESH END *****/    
 
 
     /********** CAMERA **********/
@@ -534,6 +527,7 @@ int main(void)
         screenHeight                    // Screen Height
     );
 
+    /* Set values for perspective projection matrix */
     perspectiveCamera.setProjectionMatrix(
         45.0f,                      // FOV in degrees        
         0.1f,                       // Z Near
@@ -545,9 +539,10 @@ int main(void)
     OrthoCamera orthoCamera(
         glm::vec3(0.0f, 10.0f, 0.0f),   // Camera Position
         glm::vec3(0.0f, 0.0f, 0.0f),    // Camera Center
-        glm::vec3(0.0f, 0.0f, -1.0f)    // World Up
+        glm::vec3(0.0f, 0.0f, -1.0f)    // World Up; NOTE -1.0f on Z-axis due to it pointing down; Negative to flip the side correctly
     );
 
+    /* Set values for orthographic projection matrix */
     orthoCamera.setProjectionMatrix(
         -15.0f, 15.0f,  // Xmin, Xmax
         -15.0f, 15.0f,  // Ymin, Ymax
@@ -558,30 +553,28 @@ int main(void)
     /********** LIGHTING **********/
     /* POINT LIGHT */
     PointLight pointLight(
-        glm::vec3(3.0f, 2.0f, 0.0f),       // Light Position - Position of light origin (X, Y, Z)
-        glm::vec3(1.0f, 1.0f, 1.0f),     // Light Color - RGB lighting of light source
-        1.0f,                       // Light Strength - intensity of diffuse light  
-        glm::vec3(1.0f, 1.0f, 1.0f),     // Ambient Color - RGB lighting of reflected or ambient light
-        0.4f,                       // Ambient Strength - Intensity of reflected or ambient light
-        glm::vec3(1.0f, 1.0f, 1.0f),   // Specular Color - RGB lighting of specular light
-        1.0f,                       // Specular Strength - intensity of specular light
-        16.0f                      // Specular Phong - concentration of specular light
+        glm::vec3(3.0f, 2.0f, 0.0f),    // Light Position - Position of light origin (X, Y, Z)
+        glm::vec3(1.0f, 1.0f, 1.0f),    // Light Color - RGB lighting of light source
+        1.0f,                           // Light Strength - intensity of diffuse light  
+        glm::vec3(1.0f, 1.0f, 1.0f),    // Ambient Color - RGB lighting of reflected or ambient light
+        0.4f,                           // Ambient Strength - Intensity of reflected or ambient light
+        glm::vec3(1.0f, 1.0f, 1.0f),    // Specular Color - RGB lighting of specular light
+        1.0f,                           // Specular Strength - intensity of specular light
+        16.0f                           // Specular Phong - concentration of specular light
     );
     
     /* DIRECTIONAL LIGHT (4, 11, -3) */
     DirectionalLight directionalLight(
-        glm::vec3(4, 11, -3),     // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
-        glm::vec3(1.0f, 1.0f, 1.0f), // Light Color - RGB lighting of light source
-        1.0f,                   // Light Strength - intensity of diffuse light    
-        glm::vec3(1.0f, 1.0f, 1.0f), // Ambient Color - RGB lighting of reflected or ambient light
-        0.4f,                   // Ambient Strength - Intensity of reflected or ambient light
-        glm::vec3(1.0f, 1.0f, 1.0f), // Specular Color - RGB lighting of specular light
-        1.0f,                  // Specular Strength - intensity of specular light
-        30.0f                  // Specular Phong - concentration of specular light
+        glm::vec3(4, 11, -3),           // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
+        glm::vec3(1.0f, 1.0f, 1.0f),    // Light Color - RGB lighting of light source
+        1.0f,                           // Light Strength - intensity of diffuse light    
+        glm::vec3(1.0f, 1.0f, 1.0f),    // Ambient Color - RGB lighting of reflected or ambient light
+        0.4f,                           // Ambient Strength - Intensity of reflected or ambient light
+        glm::vec3(1.0f, 1.0f, 1.0f),    // Specular Color - RGB lighting of specular light
+        1.0f,                           // Specular Strength - intensity of specular light
+        30.0f                           // Specular Phong - concentration of specular light
     );
-
     
-
     /* INITIALIZATION FOR CAMERA VARIABLES, LOCS, AND SHADER TEMP VARIABLES*/
     glm::mat4 projection_matrix, view_matrix;
     glm::vec3 cameraPos;
@@ -604,28 +597,29 @@ int main(void)
         */
         switch (cameraType) {
             case 1:
+                /* SET THE MATRICES AND CAMERA POS TO PERSPECTIVE CAMERA'S VALUES */
                 projection_matrix = perspectiveCamera.getProjectionMatrix();
                 view_matrix = perspectiveCamera.getViewMatrix();
                 cameraPos = perspectiveCamera.getCameraPos();
-
-                /* UPDATE MOVEMENT OF MOUSE UPON VALUE CHANGE */
+                /* UPDATE MOVEMENT OF MOUSE UPON VALUE CHANGE - SIGNAL FLAG ACTIVATES UPON MOUSE MOVEMENT */
                 if (isOffsetChanged) {
                     perspectiveCamera.updateMouse(xoffset, yoffset);
-                    isOffsetChanged = false;
-                }                                
+                    isOffsetChanged = false; 
+                }     
                 break;
             case 2:
+                /* SET THE MATRICES AND CAMERA POS TO ORTHOGRAPHIC CAMERA'S VALUES */
                 projection_matrix = orthoCamera.getProjectionMatrix();
                 view_matrix = orthoCamera.getViewMatrix();
                 cameraPos = orthoCamera.getCameraPos();
                 break;
         }                        
 
+        /* Link the current in-use camera's projection and view matrix to the shader's */
         projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
         viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
-
 
         /* VARIABLES FOR OBJECT POSITION, ROTATION, SCALE - (TO BE USED LATER) */
         transformationLoc = glGetUniformLocation(shaderProgram, "transform"); // transform is the variable from sample.vert
@@ -634,17 +628,19 @@ int main(void)
         glUniform1i(tex0Address, 0); // Comes from GL_TEXTURE 0
 
 
-        /* OBJECTS TRANSFORMATION */
+        /***** OBJECTS TRANSFORMATION *****/
         /************ LIGHT OBJ MATRIX and SAVE POINT LIGHT ************/
         /* Base transformation matrix */
         glm::mat4 light_obj_matrix = glm::mat4(1.0f);
         glm::mat4 transform_matrix = glm::mat4(1.0f);
 
+        /* Rotation transformation first before translation transformation allow the object to revolve around the origin */
+        /* Controlled by key movement - set the computed for light rotation */
         transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X - Axis Rotation
         transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y - Axis Rotation
         transform_matrix = glm::rotate(transform_matrix, glm::radians(light_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z - Axis Rotation
 
-        light_obj_matrix = glm::translate(light_obj_matrix, pointLight.lightPos); //Translate the light rotated matrix
+        light_obj_matrix = glm::translate(light_obj_matrix, pointLight.lightPos); // Translate the light rotated matrix
 
         float l_scale_x, l_scale_y, l_scale_z;
         l_scale_x = l_scale_y = l_scale_z = 0.25f;
@@ -665,17 +661,13 @@ int main(void)
         m_scale_x = m_scale_y = m_scale_z = 0.003f;
         model_matrix = glm::scale(model_matrix, glm::vec3(m_scale_x, m_scale_y, m_scale_z));
 
+        /* Controlled by key movement - set the computed for model rotation */
         model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_x), glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f))); // X - Axis Rotation
         model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_y), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))); // Y - Axis Rotation
         model_matrix = glm::rotate(model_matrix, glm::radians(model_rot_z), glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f))); // Z - Axis Rotation
 
 
-
-
-
-
-
-        /* VARIABLES FOR LIGHTING */
+        /***** VARIABLES FOR LIGHTING *****/
         /************ DIRECTIONAL LIGHT ************/
         /* SET CONTROL OVER DIRECTIONAL LIGHT STRENGTH */
         if (isDLightChanged) {
@@ -686,21 +678,21 @@ int main(void)
             isDLightChanged = false;
         }        
 
-        // LIGHT POSITION AND COLOR
-        unsigned int directionalLightPosLoc = glGetUniformLocation(shaderProgram, "directionalLightPos");     // Light Pos
+        /* Link the directional diffuse light properties to the shader's */
+        unsigned int directionalLightPosLoc = glGetUniformLocation(shaderProgram, "directionalLightPos");       // Light Pos
         glUniform3fv(directionalLightPosLoc, 1, glm::value_ptr(directionalLight.direction));
-        unsigned int directionalLightColorLoc = glGetUniformLocation(shaderProgram, "directionalLightColor"); // Light Color
+        unsigned int directionalLightColorLoc = glGetUniformLocation(shaderProgram, "directionalLightColor");   // Light Color
         glUniform3fv(directionalLightColorLoc, 1, glm::value_ptr(directionalLight.lightColor));
-        unsigned int directionalLightStrLoc = glGetUniformLocation(shaderProgram, "directionalLightStr"); // Light Color
+        unsigned int directionalLightStrLoc = glGetUniformLocation(shaderProgram, "directionalLightStr");       // Light Color
         glUniform1f(directionalLightStrLoc, directionalLight.lightStr);
 
-        // AMBIENT STRENGTH AND COLOR
+        /* Link the directional ambient light properties to the shader's */
         unsigned int directionalAmbientStrLoc = glGetUniformLocation(shaderProgram, "directionalAmbientStr");     // Ambient Intensity
         glUniform1f(directionalAmbientStrLoc, directionalLight.ambientStr);
         unsigned int directionalAmbientColorLoc = glGetUniformLocation(shaderProgram, "directionalAmbientColor"); // Ambient Color
         glUniform3fv(directionalAmbientColorLoc, 1, glm::value_ptr(directionalLight.ambientColor));
 
-        // CAMERA POSITION, SPECULAR STRENGTH, AND SPECULAR PHONG
+        /* Link the directional specular light properties to the shader's */
         unsigned int directionalSpecStrLoc = glGetUniformLocation(shaderProgram, "directionalSpecStr");           // Specular Intensity
         glUniform1f(directionalSpecStrLoc, directionalLight.specStr);
         unsigned int directionalSpecColorLoc = glGetUniformLocation(shaderProgram, "directionalSpecColor");       // Specular Color
@@ -710,7 +702,7 @@ int main(void)
 
 
         /************ POINT LIGHT ************/
-        /* SET CONTROL OVER DIRECTIONAL LIGHT STRENGTH */
+        /* SET CONTROL OVER POINT LIGHT STRENGTH */
         if (isPLightChanged) {
             /* MAX FUNCTION IN ORDER TO PREVENT MODIFICATION OF LIGHT INTENSITY TO GO TO NEGATIVE VALUES */
             pointLight.lightStr = std::max(p_light_intensity + pointLight.lightStr, 0.0f);
@@ -724,7 +716,7 @@ int main(void)
         pointLight.ambientColor = control_rgb;
         pointLight.specColor = control_rgb;
 
-        // LIGHT POSITION AND COLOR
+        /* Link the point diffuse light properties to the shader's */
         unsigned int pointLightPosLoc = glGetUniformLocation(shaderProgram, "pointLightPos");     // Light Pos
         glUniform3fv(pointLightPosLoc, 1, glm::value_ptr(pointLight.lightPos));
         unsigned int pointLightColorLoc = glGetUniformLocation(shaderProgram, "pointLightColor"); // Light Color
@@ -732,13 +724,13 @@ int main(void)
         unsigned int pointLightStrLoc = glGetUniformLocation(shaderProgram, "pointLightStr"); // Light Color
         glUniform1f(pointLightStrLoc, pointLight.lightStr);
 
-        // AMBIENT STRENGTH AND COLOR
+        /* Link the point ambient light properties to the shader's */
         unsigned int pointAmbientStrLoc = glGetUniformLocation(shaderProgram, "pointAmbientStr");     // Ambient Intensity
         glUniform1f(pointAmbientStrLoc, pointLight.ambientStr);
         unsigned int pointAmbientColorLoc = glGetUniformLocation(shaderProgram, "pointAmbientColor"); // Ambient Color
         glUniform3fv(pointAmbientColorLoc, 1, glm::value_ptr(pointLight.ambientColor));
 
-        // CAMERA POSITION, SPECULAR STRENGTH, AND SPECULAR PHONG
+        /* Link the point specular light properties (including the necessary variables for computation - e.g. camera position) necessary to the shader's */
         unsigned int cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");       // Camera Position
         glUniform3fv(cameraPosLoc, 1, glm::value_ptr(cameraPos));
         unsigned int pointSpecStrLoc = glGetUniformLocation(shaderProgram, "pointSpecStr");           // Specular Intensity
@@ -748,7 +740,7 @@ int main(void)
         unsigned int pointSpecPhongLoc = glGetUniformLocation(shaderProgram, "pointSpecPhong");       // Specular Phong
         glUniform1f(pointSpecPhongLoc, pointLight.specPhong);
 
-        // ATTENUATION
+        /* Link the point light attenuation computational variables necessary to the shader's */
         unsigned int pointConstantLoc = glGetUniformLocation(shaderProgram, "constant");       // Constant
         glUniform1f(pointConstantLoc, pointLight.constant);
         unsigned int pointLinearLoc = glGetUniformLocation(shaderProgram, "linear");       // Linear
@@ -756,31 +748,36 @@ int main(void)
         unsigned int pointQuadraticLoc = glGetUniformLocation(shaderProgram, "quadratic");       // Quadratic
         glUniform1f(pointQuadraticLoc, pointLight.quadratic);
 
-        
-        /* MODEL OBJECT ITEM - VAO0 and TEXTURE0 */
-        // DRAW THE TEXTURE0
-        glBindTexture(GL_TEXTURE_2D, texture); // Call OpenGL we're using that texture
-        // MODEL OBJECT TRANSFORM MATRIX
+        /***** VARIABLES FOR MODEL *****/
+        /* MUSHROOM MODEL - VAO0 and TEXTURE0 */
+        /* Draw TEXTURE0 */
+        glBindTexture(GL_TEXTURE_2D, texture); 
+        /* Link the mushroom model's transformation matrix */
         glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-        // DRAW OBJECT0 
+        /* Draw MODEL0 - Mushroom */
         glBindVertexArray(VAO[0]);
         glDrawArrays(GL_TRIANGLES, 0, fullVertexData.size() / 8); // divided by 8 to get the number of vertices to draw
-
-
+        
         /* USE SHADER 1 - UNLIT OBJECT SHADER */
         shaderProgram = shaderPrograms[1];
         glUseProgram(shaderProgram);
 
-        unsigned int colorLoc = glGetUniformLocation(shaderProgram, "color_rgba");
-        glUniform4f(colorLoc, control_rgb.x, control_rgb.y, control_rgb.z, 1.0f);
-        transformationLoc = glGetUniformLocation(shaderProgram, "transform");
-        glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(light_obj_matrix));
+        /* Relink the projection and view matrix of the current camera in use; Recall that switching shader equates to a fresh slate shader */
         projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
         viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
+
+        /* LIGHT BOX MODEL - VAO1 */
+        /* Link the frag color to the shader's */
+        unsigned int colorLoc = glGetUniformLocation(shaderProgram, "color_rgba");
+        /* RGB values dependent on whether light is currently controlled: GREEN (controlled) and WHITE (not controlled) */
+        glUniform4f(colorLoc, control_rgb.x, control_rgb.y, control_rgb.z, 1.0f);
+        transformationLoc = glGetUniformLocation(shaderProgram, "transform");
+        /* Link the light box model's transformation matrix */
+        glUniformMatrix4fv(transformationLoc, 1, GL_FALSE, glm::value_ptr(light_obj_matrix));        
         
-        // DRAW OBJECT1 
+        /* Draw MODEL1 - Light Box */
         glBindVertexArray(VAO[1]);
         glDrawElements(GL_TRIANGLES,
             mesh_indices.size(),
@@ -793,7 +790,7 @@ int main(void)
         glfwPollEvents();
     }
 
-    // Clean up
+    /* Clean up */
     glDeleteVertexArrays(2, VAO);
     glDeleteBuffers(2, VBO);
        
