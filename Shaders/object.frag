@@ -1,6 +1,4 @@
-/* POINT LIGHT */
-
-#version 330 core //shader version
+#version 330 core // Shader version
 
 uniform sampler2D tex0;
 
@@ -35,30 +33,22 @@ uniform float directionalSpecStr;
 uniform float directionalSpecPhong;
 
 
-
 /* VERTEX SHADER OUTPUT VARIABLES */
 in vec2 texCoord; 
 in vec3 normCoord;
 in vec3 fragPos;
 
+
 /* FINAL FRAG COLOR */
 out vec4 FragColor;
 
 void main(){
-
+    /* Base frag color vector */
     FragColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
     /* THE SAME FOR SPECULAR COMPUTATION OF BOTH POINT AND DIRECTIONAL */
     vec3 normal = normalize(normCoord);
     vec3 viewDir = normalize(cameraPos - fragPos);
-
-    
-
-
-
-
-
-
 
     /********* DIRECTIONAL LIGHT CALCULATION *********/   
 	vec3 directionalLightDir = normalize(directionalLightPos - fragPos); // Direction from the light source to your fragment source
@@ -73,15 +63,12 @@ void main(){
 	/* SPECULAR */
 	vec3 directionalReflectDir = reflect(-directionalLightDir, normal); // Reflection vector	
 	float directionalSpec = pow(max(dot(directionalReflectDir, viewDir), 0.1f), directionalSpecPhong); // Specular light
-	vec3 directionalSpecCol = directionalSpec * directionalSpecStr * directionalSpecColor; // Or any in light color; you can choose your own rgb as opposed to lightColor; final specular color
+	vec3 directionalSpecCol = directionalSpec * directionalSpecStr * directionalSpecColor; // Final specular with specular intensity and specular color
 
     /* ADDING DIRECTIONAL TO FRAG COLOR */
 	FragColor += vec4(directionalSpecCol + directionalDiffuse + directionalAmbientCol, 1.0f) * texture(tex0, texCoord); // Assign the pixels, given our UV, to the model of our object; The wrapping part
 																// Apply the diffuse
 																// Apply specular
-
-
-
 
     /********* POINT LIGHT CALCULATION *********/   
     vec3 pointLightDir = normalize(pointLightPos - fragPos); // Direction from the light source to your fragment source
@@ -96,9 +83,9 @@ void main(){
     /* SPECULAR */
     vec3 pointReflectDir = reflect(-pointLightDir, normal); // Reflection vector    
     float pointSpec = pow(max(dot(pointReflectDir, viewDir), 0.1f), pointSpecPhong); // Specular light
-    vec3 pointSpecCol = pointSpec * pointSpecStr * pointSpecColor; //  Combine spec with intensity and chosen RGB coler
+    vec3 pointSpecCol = pointSpec * pointSpecStr * pointSpecColor; // Final specular with specular intensity and specular color
 
-    /* POINT */
+    /* ATTENUATION */
     /* NOTE: Values are determined from a recommended light combinations table from Ogre3D - www.ogre3d.org/tikiwiki/tiki-index.php?page=-Point+Light+Attenuation 
         float constant - Ensures the denominator never gets smaller than 1
         float linear - Reduces the intensity in in a linear fashion
@@ -113,12 +100,10 @@ void main(){
     pointAmbientCol = pointAmbientCol * attenuation;    // transform the ambient vector with respect to the attenuation
     pointSpecCol = pointSpecCol * attenuation;        // transform the specular vector with respect to the attenuation
 
-    /* ADDING POINT TO FRAG COLOR */
+    /* ADDING POINT LIGHT TO FRAG COLOR (At this point, both directional light and point light has been added to FragColor) */
     FragColor += vec4(pointSpecCol + pointDiffuse + pointAmbientCol, 1.0f) * texture(tex0, texCoord); // Assign the pixels, given our UV, to the model of our object; The wrapping part
                                                                 // Apply the diffuse
                                                                 // Apply the ambient
-                                                                // Apply specular   
-                                                                
-    
+                                                                // Apply specular                                                                       
 
 }
