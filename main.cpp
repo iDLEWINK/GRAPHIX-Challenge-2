@@ -565,14 +565,14 @@ int main(void)
     
     /* DIRECTIONAL LIGHT (4, 11, -3) */
     DirectionalLight directionalLight(
-        glm::vec3(4, 11, -3),           // Light Direction - Emphasis on direction, it represents the vector direction of light; Not a position
-        glm::vec3(1.0f, 1.0f, 1.0f),    // Light Color - RGB lighting of light source
-        1.0f,                           // Light Strength - intensity of diffuse light    
-        glm::vec3(1.0f, 1.0f, 1.0f),    // Ambient Color - RGB lighting of reflected or ambient light
-        0.4f,                           // Ambient Strength - Intensity of reflected or ambient light
-        glm::vec3(1.0f, 1.0f, 1.0f),    // Specular Color - RGB lighting of specular light
-        1.0f,                           // Specular Strength - intensity of specular light
-        30.0f                           // Specular Phong - concentration of specular light
+        glm::vec3(0, 0, 0) - glm::vec3(4, 11, -3),  // Light Direction - Emphasis on direction, it represents the vector direction of light from (4, 11, -3) to the center (0, 0, 0); Not a position
+        glm::vec3(1.0f, 1.0f, 1.0f),                // Light Color - RGB lighting of light source
+        1.0f,                                       // Light Strength - intensity of diffuse light    
+        glm::vec3(1.0f, 1.0f, 1.0f),                // Ambient Color - RGB lighting of reflected or ambient light
+        0.4f,                                       // Ambient Strength - Intensity of reflected or ambient light
+        glm::vec3(1.0f, 1.0f, 1.0f),                // Specular Color - RGB lighting of specular light
+        1.0f,                                       // Specular Strength - intensity of specular light
+        30.0f                                       // Specular Phong - concentration of specular light
     );
     
     /* INITIALIZATION FOR CAMERA VARIABLES, LOCS, AND SHADER TEMP VARIABLES*/

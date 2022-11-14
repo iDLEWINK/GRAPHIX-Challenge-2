@@ -51,7 +51,7 @@ void main(){
     vec3 viewDir = normalize(cameraPos - fragPos);
 
     /********* DIRECTIONAL LIGHT CALCULATION *********/   
-	vec3 directionalLightDir = normalize(directionalLightPos - fragPos); // Direction from the light source to your fragment source
+	vec3 directionalLightDir = normalize(-directionalLightPos); // Direction from the light source to your fragment source
 
 	/* DIFFUSE */
 	float directionalDiff = max(dot(normal, directionalLightDir), 0.0f); // Max so we do not have any negative lights	
